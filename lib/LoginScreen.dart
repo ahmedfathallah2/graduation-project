@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +21,7 @@ class LoginScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             TextField(
               decoration: InputDecoration(
                 labelText: "Email Address",
@@ -28,7 +30,7 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               obscureText: true,
               decoration: InputDecoration(
@@ -36,18 +38,18 @@ class LoginScreen extends StatelessWidget {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                suffixIcon: Icon(Icons.visibility_off),
+                suffixIcon: const Icon(Icons.visibility_off),
               ),
             ),
-            SizedBox(height: 10),
-            Align(
+            const SizedBox(height: 10),
+            const Align(
               alignment: Alignment.centerRight,
               child: Text(
                 "Recovery Password",
                 style: TextStyle(color: Colors.grey),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -56,14 +58,14 @@ class LoginScreen extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: Text("Sign In"),
+              child: const Text("Sign In"),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             TextButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -71,16 +73,16 @@ class LoginScreen extends StatelessWidget {
                   MaterialPageRoute(builder:(context) =>  DealsScreen() ));
               },
 
-              icon: Icon(Icons.person_outline, color: Colors.purple),
-              label: Text("Continue as a guest"),
+              icon: const Icon(Icons.person_outline, color: Colors.purple),
+              label: const Text("Continue as a guest"),
             ),
             TextButton.icon(
               onPressed: () {},
-              icon: Icon(Icons.admin_panel_settings, color: Colors.blue),
-              label: Text("Admin Login"),
+              icon: const Icon(Icons.admin_panel_settings, color: Colors.blue),
+              label: const Text("Admin Login"),
             ),
-            SizedBox(height: 20),
-            Text.rich(
+            const SizedBox(height: 20),
+            const Text.rich(
               TextSpan(
                 text: "Don't Have An Account? ",
                 style: TextStyle(color: Colors.grey),

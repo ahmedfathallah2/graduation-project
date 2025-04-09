@@ -20,7 +20,7 @@ class AboutUsScreen extends StatelessWidget {
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
-                  Positioned.fill(
+                  const Positioned.fill(
                     child: Center(
                       child: Text(
                         'About Us',
@@ -55,10 +55,10 @@ class AboutUsScreen extends StatelessWidget {
                       height: 80,
                     ),
                     const SizedBox(width: 10),
-                    Expanded(
+                    const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Our Vision',
                             style: TextStyle(
@@ -84,10 +84,10 @@ class AboutUsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
                   children: [
-                    Expanded(
+                    const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Our Mission',
                             style: TextStyle(
@@ -115,11 +115,11 @@ class AboutUsScreen extends StatelessWidget {
               const SizedBox(height: 30),
 
               // The Story
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'The SmartShopper Story',
                       style: TextStyle(

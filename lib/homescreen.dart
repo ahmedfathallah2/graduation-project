@@ -4,6 +4,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'chatscreen.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +34,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       elevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.black),
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () { LoginScreen(); },
       ),
     );
@@ -44,7 +46,7 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: TextField(
         decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search, color: Colors.grey),
+          prefixIcon: const Icon(Icons.search, color: Colors.grey),
           hintText: "Search",
           filled: true,
           fillColor: Colors.grey[200],
@@ -129,9 +131,9 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Today's Deal",
+          const Text("Today's Deal",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -156,7 +158,7 @@ class HomeScreen extends StatelessWidget {
       String title, String price, String discount, String image) {
     return Container(
       width: 150,
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: Colors.white,
@@ -165,21 +167,21 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         children: [
           Image.asset(image),
-          SizedBox(height: 5),
+          const SizedBox(height: 5),
           Text(title,
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold)),
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           Text(price,
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           Container(
-            margin: EdgeInsets.only(top: 5),
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            margin: const EdgeInsets.only(top: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: Colors.red,
               borderRadius: BorderRadius.circular(5),
             ),
             child: Text(discount,
-                style: TextStyle(color: Colors.white, fontSize: 12)),
+                style: const TextStyle(color: Colors.white, fontSize: 12)),
           ),
         ],
       ),
@@ -189,16 +191,16 @@ class HomeScreen extends StatelessWidget {
   // 🔹 Build Bottom Navigation Bar
   Widget buildBottomNavBar() {
     return BottomAppBar(
-      shape: CircularNotchedRectangle(),
+      shape: const CircularNotchedRectangle(),
       notchMargin: 10,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
-              icon: Icon(Icons.home, color: Colors.black), onPressed: () {}),
-          SizedBox(width: 40), // Space for the floating button
+              icon: const Icon(Icons.home, color: Colors.black), onPressed: () {}),
+          const SizedBox(width: 40), // Space for the floating button
           IconButton(
-              icon: Icon(Icons.person, color: Colors.black), onPressed: () {}),
+              icon: const Icon(Icons.person, color: Colors.black), onPressed: () {}),
         ],
       ),
     );
