@@ -35,7 +35,7 @@ class DealsScreen extends StatelessWidget {
               Navigator.pop(context);
               
             },
-            child: Text('About Us'),
+            child: Text('About Us us '),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,
