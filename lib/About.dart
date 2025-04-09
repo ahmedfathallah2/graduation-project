@@ -66,7 +66,7 @@ class AboutUsScreen extends StatelessWidget {
                               fontSize: 18,
                             ),
                           ),
-                          SizedBox(height: 5),
+                          SizedBox(height: 10),
                           Text(
                             'To transform electronic shopping into a seamless, transparent, and personalized experience, empowering users with innovative, user-centric solutions for confident and informed decisions.',
                           ),

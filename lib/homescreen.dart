@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/login_screen.dart';
+import 'package:ecommerce_app/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'chatscreen.dart';
@@ -21,7 +22,7 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: buildBottomNavBar(),
+      bottomNavigationBar: buildBottomNavBar(context),
       floatingActionButton: buildChatButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       
@@ -189,7 +190,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   // 🔹 Build Bottom Navigation Bar
-  Widget buildBottomNavBar() {
+  Widget buildBottomNavBar(BuildContext context) {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 10,
@@ -200,7 +201,10 @@ class HomeScreen extends StatelessWidget {
               icon: const Icon(Icons.home, color: Colors.black), onPressed: () {}),
           const SizedBox(width: 40), // Space for the floating button
           IconButton(
-              icon: const Icon(Icons.person, color: Colors.black), onPressed: () {}),
+              icon: const Icon(Icons.person, color: Colors.black), onPressed: () {
+                Navigator.push(context,
+                 MaterialPageRoute(builder: (context)=> ProfileScreen() ),);
+              }),
         ],
       ),
     );
