@@ -54,7 +54,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context, 
-                  MaterialPageRoute(builder:(context) =>  HomeScreen() ));
+                  MaterialPageRoute(builder:(context) =>  const HomeScreen() ));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
@@ -70,7 +70,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context, 
-                  MaterialPageRoute(builder:(context) =>  DealsScreen() ));
+                  MaterialPageRoute(builder:(context) =>  const DealsScreen() ));
               },
 
               icon: const Icon(Icons.person_outline, color: Colors.purple),

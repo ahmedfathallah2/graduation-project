@@ -46,7 +46,7 @@ class DealsScreen extends StatelessWidget {
               elevation: 0,
               side: const BorderSide(color: Colors.black12),
             ),
-            child: Text('About Us us '),
+            child: const Text('About Us us '),
           ),
           CircleAvatar(backgroundColor: Colors.grey[200], child: const Icon(Icons.person)),
         ],

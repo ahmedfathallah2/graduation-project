@@ -1,4 +1,4 @@
-import 'package:ecommerce_app/LoginScreen.dart';
+import 'package:ecommerce_app/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'chatscreen.dart';
@@ -35,7 +35,7 @@ class HomeScreen extends StatelessWidget {
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () { LoginScreen(); },
+        onPressed: () { const LoginScreen(); },
       ),
     );
   }

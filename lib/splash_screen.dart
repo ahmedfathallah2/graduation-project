@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>LoginScreen() ), // Change to your main screen
+        MaterialPageRoute(builder: (context) =>const LoginScreen() ), // Change to your main screen
       );
     });
   }
