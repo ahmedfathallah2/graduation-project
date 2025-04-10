@@ -112,7 +112,7 @@ class DealsScreen extends StatelessWidget {
         "title": "Xiaomi Redmi Buds 4 Lite",
         "price": "EGP698",
         "discount": "50% off",
-        "image": "assets/images/redmi.jpg",
+        "image": "images/redmi.jpg",
       },
     ];
 
