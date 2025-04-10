@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class AboutUsScreen extends StatelessWidget {
@@ -15,8 +16,8 @@ class AboutUsScreen extends StatelessWidget {
               Stack(
                 children: [
                   Image.asset(
-                    'assets/header_image.jpg', // replace with your header image
-                    height: 200,
+                    'images/360_F_508801991_UTsCAOorx25USitqonfRADueJlzyjhDq.jpg', // replace with your header image
+                    height: 100,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
@@ -50,7 +51,7 @@ class AboutUsScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     Image.asset(
-                      'assets/robot.png', // replace with your image
+                      'images/vision.jpg', // replace with your image
                       width: 80,
                       height: 80,
                     ),
@@ -104,7 +105,7 @@ class AboutUsScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Image.asset(
-                      'assets/watch.png', // replace with your image
+                      'images/mision.jpg', // replace with your image
                       width: 80,
                       height: 80,
                     ),
