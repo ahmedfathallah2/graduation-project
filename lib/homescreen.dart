@@ -203,7 +203,7 @@ class HomeScreen extends StatelessWidget {
           IconButton(
               icon: const Icon(Icons.person, color: Colors.black), onPressed: () {
                 Navigator.push(context,
-                 MaterialPageRoute(builder: (context)=> ProfileScreen() ),);
+                 MaterialPageRoute(builder: (context)=> const ProfileScreen() ),);
               }),
         ],
       ),

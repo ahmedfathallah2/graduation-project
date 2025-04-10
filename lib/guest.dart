@@ -37,7 +37,7 @@ class DealsScreen extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context)=> AboutUsScreen()));
+                MaterialPageRoute(builder: (context)=> const AboutUsScreen()));
               
             },
             style: ElevatedButton.styleFrom(
