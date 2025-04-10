@@ -1,8 +1,6 @@
-
 import 'package:ecommerce_app/about.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-
 
 class DealsScreen extends StatelessWidget {
   const DealsScreen({super.key});
@@ -31,14 +29,22 @@ class DealsScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CircleAvatar(backgroundColor: Colors.grey[200], child: const Icon(Icons.arrow_back)),
-          
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context); // This will navigate back
+            },
+            child: CircleAvatar(
+              backgroundColor: Colors.grey[200],
+              child: const Icon(Icons.arrow_back),
+            ),
+          ),
+
           ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context)=> const AboutUsScreen()));
-              
+                MaterialPageRoute(builder: (context) => const AboutUsScreen()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -51,7 +57,10 @@ class DealsScreen extends StatelessWidget {
             ),
             child: const Text('About Us us '),
           ),
-          CircleAvatar(backgroundColor: Colors.grey[200], child: const Icon(Icons.person)),
+          CircleAvatar(
+            backgroundColor: Colors.grey[200],
+            child: const Icon(Icons.person),
+          ),
         ],
       ),
     );
@@ -68,9 +77,14 @@ class DealsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: CarouselSlider(
           options: CarouselOptions(height: 140, autoPlay: true),
-          items: images.map((img) {
-            return Image.asset(img, fit: BoxFit.cover, width: double.infinity);
-          }).toList(),
+          items:
+              images.map((img) {
+                return Image.asset(
+                  img,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                );
+              }).toList(),
         ),
       ),
     );
@@ -79,7 +93,10 @@ class DealsScreen extends StatelessWidget {
   Widget buildDealsTitle() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-      child: Text("Today's Deal", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(
+        "Today's Deal",
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
@@ -118,7 +135,12 @@ class DealsScreen extends StatelessWidget {
     );
   }
 
-  Widget buildDealCard(String title, String price, String discount, String imagePath) {
+  Widget buildDealCard(
+    String title,
+    String price,
+    String discount,
+    String imagePath,
+  ) {
     return Container(
       width: 160,
       margin: const EdgeInsets.only(right: 12),
@@ -135,10 +157,19 @@ class DealsScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
-            child: Text(discount, style: const TextStyle(color: Colors.white, fontSize: 12)),
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Text(
+              discount,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
           ),
-          const Text("Limited time deal", style: TextStyle(color: Colors.red, fontSize: 12)),
+          const Text(
+            "Limited time deal",
+            style: TextStyle(color: Colors.red, fontSize: 12),
+          ),
           const SizedBox(height: 4),
           Text(price, style: const TextStyle(fontWeight: FontWeight.bold)),
           Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
