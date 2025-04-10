@@ -1,9 +1,7 @@
-
 import 'package:flutter/material.dart';
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,6 +10,16 @@ class AboutUsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.pop(context); // This will navigate back
+                },
+                child: CircleAvatar(
+                  backgroundColor: Colors.grey[200],
+                  child: const Icon(Icons.arrow_back),
+                ),
+              ),
+
               // Top Image with Text Overlay
               Stack(
                 children: [
