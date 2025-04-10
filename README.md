@@ -1,6 +1,6 @@
-# E-Commerce Mobile App
+# AI Electronics Shopping assistant App
 
-A feature-rich Flutter e-commerce application with authentication, product browsing, and chat functionality.
+A feature-rich Flutter application with authentication, product browsing, and chat functionality.
 
 ## Features
 
@@ -16,9 +16,9 @@ A feature-rich Flutter e-commerce application with authentication, product brows
 ## Technology Stack
 
 - **Framework**: Flutter
-- **State Management**: Provider (to be confirmed)
-- **Backend**: Firebase (to be confirmed)
-- **Database**: Firestore (to be confirmed)
+- **State Management**: Provider 
+- **Backend**: Firebase 
+- **Database**: Firestore 
 
 ## Getting Started
 
@@ -32,7 +32,7 @@ A feature-rich Flutter e-commerce application with authentication, product brows
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-repo/ecommerce_app.git
+git clone https://github.com/ahmedfathallah2/ecommerce_app.git
 ```
 
 2. Install dependencies:
