@@ -1,6 +1,8 @@
 import 'package:ecommerce_app/guest.dart';
 import 'package:ecommerce_app/homescreen.dart';
+import 'package:ecommerce_app/signup.dart'; // 👈 import SignUpScreen
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -54,7 +56,8 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context, 
-                  MaterialPageRoute(builder:(context) =>  const HomeScreen() ));
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
@@ -69,10 +72,10 @@ class LoginScreen extends StatelessWidget {
             TextButton.icon(
               onPressed: () {
                 Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder:(context) =>  const DealsScreen() ));
+                  context,
+                  MaterialPageRoute(builder: (context) => const DealsScreen()),
+                );
               },
-
               icon: const Icon(Icons.person_outline, color: Colors.purple),
               label: const Text("Continue as a guest"),
             ),
@@ -82,14 +85,24 @@ class LoginScreen extends StatelessWidget {
               label: const Text("Admin Login"),
             ),
             const SizedBox(height: 20),
-            const Text.rich(
-              TextSpan(
+            RichText(
+              text: TextSpan(
                 text: "Don't Have An Account? ",
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
                 children: [
                   TextSpan(
                     text: "Sign Up For Free",
-                    style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                        );
+                      },
                   ),
                 ],
               ),
