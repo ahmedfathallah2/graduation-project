@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/about.dart';
+import 'package:ecommerce_app/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -57,9 +58,17 @@ class DealsScreen extends StatelessWidget {
             ),
             child: const Text('About Us us '),
           ),
-          CircleAvatar(
-            backgroundColor: Colors.grey[200],
-            child: const Icon(Icons.person),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SignUpScreen()),
+              );
+            },
+            child: CircleAvatar(
+              backgroundColor: Colors.grey[200],
+              child: const Icon(Icons.person),
+            ),
           ),
         ],
       ),
