@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/editprofile.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
@@ -25,7 +26,10 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.black),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, 
+              MaterialPageRoute(builder: (context)=>const EditProfileScreen()));
+            },
           )
         ],
       ),
