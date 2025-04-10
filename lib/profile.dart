@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-
+import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -15,7 +14,9 @@ class ProfileScreen extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-          onPressed: () {Navigator.pop(context);},
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         title: const Text(
           'Profile',
@@ -57,22 +58,38 @@ class ProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: ListView(
-                children: const [
-                  ProfileMenuItem(
+                children: [
+                  const ProfileMenuItem(
                     icon: Icons.person_outline,
                     title: 'Profile',
                   ),
-                  ProfileMenuItem(
+                  const ProfileMenuItem(
                     icon: Icons.favorite_border,
-                    title: 'wishlist',
+                    title: 'Wishlist',
                   ),
-                  ProfileMenuItem(
+                  const ProfileMenuItem(
                     icon: Icons.search,
-                    title: 'recently searched',
+                    title: 'Recently Searched',
                   ),
-                  ProfileMenuItem(
+                  const ProfileMenuItem(
                     icon: Icons.settings_outlined,
                     title: 'Settings',
+                  ),
+                  
+                  // 🔴 Logout Button
+                  ListTile(
+                    leading: const Icon(Icons.logout, color: Colors.red),
+                    title: const Text(
+                      'Logout',
+                      style: TextStyle(fontSize: 16, color: Colors.red),
+                    ),
+                    onTap: () {
+                      // Navigate to login screen
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
                   ),
                 ],
               ),

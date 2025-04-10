@@ -1,4 +1,3 @@
-import 'package:ecommerce_app/login_screen.dart';
 import 'package:ecommerce_app/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -31,14 +30,10 @@ class HomeScreen extends StatelessWidget {
 
   // 🔹 Build App Bar (Back Button)
   AppBar buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () { const LoginScreen(); },
-      ),
-    );
+    return AppBar();
+     
+        
+    
   }
 
   // 🔹 Build Search Bar
