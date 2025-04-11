@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/amin_splash_screen.dart';
 import 'package:ecommerce_app/guest.dart';
 import 'package:ecommerce_app/homescreen.dart';
 import 'package:ecommerce_app/signup.dart'; // 👈 import SignUpScreen
@@ -80,7 +81,10 @@ class LoginScreen extends StatelessWidget {
               label: const Text("Continue as a guest"),
             ),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                 MaterialPageRoute(builder: (context)=>const adminsplashscreen()));
+              },
               icon: const Icon(Icons.admin_panel_settings, color: Colors.blue),
               label: const Text("Admin Login"),
             ),
