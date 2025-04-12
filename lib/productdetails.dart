@@ -14,7 +14,7 @@ class ProductPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20,),
+            const SizedBox(height: 20,),
             Row(
               children: [
                 GestureDetector(
@@ -28,10 +28,10 @@ class ProductPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(product.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                      SizedBox(height: 8),
+                      Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
                       Text(product.description,
-                        style: TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
@@ -39,27 +39,27 @@ class ProductPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Row(
+            const Row(
               children: [
-                const Icon(Icons.star, color: Colors.orange, size: 18),
-                const Text("3.5"),
-                const SizedBox(width: 10),
+                Icon(Icons.star, color: Colors.orange, size: 18),
+                Text("3.5"),
+                SizedBox(width: 10),
                 Text("1922 Reviews", style: TextStyle(color: Colors.red)),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Text("936 Sold", style: TextStyle(color: Colors.green)),
               ],
             ),
             const SizedBox(height: 8),
-            Text(product.price, style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(product.price, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
       
             // Dimensions
              ExpansionTile(
-              title: Text("DIMENSIONS", style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text("DIMENSIONS", style: TextStyle(fontWeight: FontWeight.bold)),
               initiallyExpanded: false,
               children: [
                 ListTile(
-                  title: Text("Product Dimensions"),
+                  title: const Text("Product Dimensions"),
                   trailing: Text("${product.dimensions[0]} ×${product.dimensions[1]}  ×${product.dimensions[2]}  mm"),
                 )
               ],
@@ -67,7 +67,7 @@ class ProductPage extends StatelessWidget {
       
             // Vendor section
              ExpansionTile(
-              title: Text("vendor", style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text("vendor", style: TextStyle(fontWeight: FontWeight.bold)),
               initiallyExpanded: false,
               children: List.generate(product.vendors.length,(index){
                 return ListTile(title: Text(product.vendors[index]),);
@@ -79,7 +79,7 @@ class ProductPage extends StatelessWidget {
       
             // Color section
             ExpansionTile(
-              title: Text("color", style: TextStyle(fontWeight: FontWeight.bold)),
+              title: const Text("color", style: TextStyle(fontWeight: FontWeight.bold)),
               initiallyExpanded: false,
               children: List.generate(product.colors.length,(index){
                 return ListTile(title: Text(product.colors[index]),);
