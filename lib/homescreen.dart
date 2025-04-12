@@ -146,6 +146,16 @@ class HomeScreen extends StatelessWidget {
         colors: ['white','c'],
         vendors: ['sd']
       ),
+      Product(
+        name: "Samsung",
+        price: "EGP 72,000",
+        discount: "15% off",
+        imageUrl: "images/s24.webp",
+        description: "Powerful flagship with excellent display and camera.",
+        dimensions: ['45','51','155'],
+        colors: ['white','c'],
+        vendors: ['sd']
+      ),
     ];
 
     return Padding(
