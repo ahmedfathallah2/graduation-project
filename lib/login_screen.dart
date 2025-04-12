@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             TextField(
               obscureText: obsecureText,
               decoration: InputDecoration(
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(color: Colors.grey),
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
