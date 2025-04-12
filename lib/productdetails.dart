@@ -97,25 +97,25 @@ class ProductPage extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 children: const [
                   ProductSuggestionCard(
-                    imagePath: "assets/iphone_16.png",
+                    imagePath: "images/iphone_16.png",
                     price: "EGP47,977",
                     name: "iPhone 16",
                     rating: 5,
                   ),
                   ProductSuggestionCard(
-                    imagePath: "assets/iphone_15.png",
+                    imagePath: "images/iphone_15.png",
                     price: "EGP34,999",
                     name: "iPhone 15",
                     rating: 4,
                   ),
                   ProductSuggestionCard(
-                    imagePath: "assets/iphone_13.png",
+                    imagePath: "images/iphone_13.jpg",
                     price: "EGP24,999",
                     name: "iPhone 13",
                     rating: 5,
                   ),
                   ProductSuggestionCard(
-                    imagePath: "assets/iphone_11.png",
+                    imagePath: "images/iphone_11.jpg",
                     price: "EGP22,499",
                     name: "iPhone 11",
                     rating: 4,
