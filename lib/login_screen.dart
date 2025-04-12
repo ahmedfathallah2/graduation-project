@@ -24,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 20),
+
             Text(
               "Welcome Back!",
               style: GoogleFonts.poppins(
@@ -31,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
             TextField(
               
               decoration: InputDecoration(
@@ -65,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(color: Colors.grey),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
