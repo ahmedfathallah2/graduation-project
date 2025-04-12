@@ -1,8 +1,9 @@
 import 'package:ecommerce_app/about.dart';
-import 'package:ecommerce_app/detailss2.dart';
+import 'package:ecommerce_app/productdetails.dart';
 import 'package:ecommerce_app/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'models/product.dart';
 
 class DealsScreen extends StatelessWidget {
   const DealsScreen({super.key});
@@ -16,7 +17,8 @@ class DealsScreen extends StatelessWidget {
             buildHeader(context),
             buildBannerCarousel(),
             buildDealsTitle(),
-            buildDealsSlider(),
+            buildDealsSection(context),
+            
           ],
         ),
       ),
@@ -110,98 +112,116 @@ class DealsScreen extends StatelessWidget {
     );
   }
 
-  Widget buildDealsSlider() {
-    final deals = [
-      {
-        "title": "Iphone 15 pro max",
-        "price": "EGP89,999",
-        "discount": "10% off",
-        "image": "images/download.jpg",
-      },
-      {
-        "title": "Xiaomi Redmi Buds 4 Lite",
-        "price": "EGP698",
-        "discount": "50% off",
-        "image": "images/redmi.jpg",
-      },
+  
+Widget buildDealsSection(BuildContext context) {
+    final List<Product> deals = [
+      Product(
+        name: "iPhone 15 Pro Max",
+        price: "EGP 89,999",
+        discount: "10% off",
+        imageUrl: "images/download.jpg",
+        description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
+        dimensions: ['45','51','155'],
+        colors: ['white','c'],
+        vendors: ['sd']
+      ),
+      Product(
+        name: "Xiaomi Redmi Buds",
+        price: "EGP 698",
+        discount: "50% off",
+        imageUrl: "images/redmi.jpg",
+        description: "Great sound quality, long battery, and sleek design.",
+        dimensions: ['45','51','155'],
+        colors: ['white','c'],
+        vendors: ['sd']
+      ),
+      Product(
+        name: "Samsung Galaxy S24",
+        price: "EGP 72,000",
+        discount: "15% off",
+        imageUrl: "images/s24.webp",
+        description: "Powerful flagship with excellent display and camera.",
+        dimensions: ['45','51','155'],
+        colors: ['white','c'],
+        vendors: ['sd']
+      ),
     ];
 
-    return SizedBox(
-      height: 250,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.only(left: 16),
-        itemCount: deals.length,
-        itemBuilder: (context, index) {
-          final deal = deals[index];
-          return buildDealCard(context,
-            deal["title"]!,
-            deal["price"]!,
-            deal["discount"]!,
-            deal["image"]!,
-          );
-        },
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Today's Deal",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: deals
+                  .map((product) => buildDealCard(context, product))
+                  .toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildDealCard(context, 
-  //
-  String title,
-  String price,
-  String discount,
-  String imagePath,
-) {
-  return GestureDetector(
-    onTap: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) =>const  ProductDetailScreen2(
-        
-      ),
-    ),
-  );
-},
-
-    child: Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 6)],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.asset(imagePath, height: 100),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Text(
-              discount,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
-            ),
+  Widget buildDealCard(BuildContext context, Product product) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductPage(product: product, showDimensions: true,),
           ),
-          const Text(
-            "Limited time deal",
-            style: TextStyle(color: Colors.red, fontSize: 12),
-          ),
-          const SizedBox(height: 4),
-          Text(price, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
-        ],
+        );
+      },
+      child: Container(
+        width: 150,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+        ),
+        child: Column(
+          children: [
+            Image.asset(product.imageUrl, height: 90),
+            const SizedBox(height: 5),
+            Text(
+              product.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              product.price,
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                product.discount,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
   Widget buildSearchButton() {
     return FloatingActionButton(
       backgroundColor: Colors.blue,

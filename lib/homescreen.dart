@@ -122,6 +122,9 @@ class HomeScreen extends StatelessWidget {
         discount: "10% off",
         imageUrl: "images/download.jpg",
         description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
+        dimensions: ['45','51','44'],
+        colors: ['white','c'],
+        vendors: ['amazon','jumia']
       ),
       Product(
         name: "Xiaomi Redmi Buds",
@@ -129,6 +132,9 @@ class HomeScreen extends StatelessWidget {
         discount: "50% off",
         imageUrl: "images/redmi.jpg",
         description: "Great sound quality, long battery, and sleek design.",
+        dimensions: ['45','51','155'],
+        colors: ['white','c'],
+        vendors: ['sd']
       ),
       Product(
         name: "Samsung Galaxy S24",
@@ -136,6 +142,9 @@ class HomeScreen extends StatelessWidget {
         discount: "15% off",
         imageUrl: "images/s24.webp",
         description: "Powerful flagship with excellent display and camera.",
+        dimensions: ['45','51','155'],
+        colors: ['white','c'],
+        vendors: ['sd']
       ),
     ];
 
@@ -168,7 +177,7 @@ class HomeScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ProductDetailsScreen(product: product),
+            builder: (_) => ProductPage(product: product, showDimensions:true),
           ),
         );
       },
