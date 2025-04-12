@@ -122,7 +122,7 @@ class HomeScreen extends StatelessWidget {
         discount: "10% off",
         imageUrl: "images/download.jpg",
         description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
-        dimensions: ['45','51','44'],
+        dimensions: ['159.9' , '76.7', '8.3' ],
         colors: ['white','c'],
         vendors: ['amazon','jumia']
       ),
@@ -143,19 +143,10 @@ class HomeScreen extends StatelessWidget {
         imageUrl: "images/s24.webp",
         description: "Powerful flagship with excellent display and camera.",
         dimensions: ['45','51','155'],
-        colors: ['white','c'],
-        vendors: ['sd']
+        colors: ['white','black'],
+        vendors: ['amazon']
       ),
-      Product(
-        name: "Samsung",
-        price: "EGP 72,000",
-        discount: "15% off",
-        imageUrl: "images/s24.webp",
-        description: "Powerful flagship with excellent display and camera.",
-        dimensions: ['45','51','155'],
-        colors: ['white','c'],
-        vendors: ['sd']
-      ),
+      
     ];
 
     return Padding(
