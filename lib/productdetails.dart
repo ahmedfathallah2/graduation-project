@@ -1,5 +1,3 @@
-// screens/product_details_screen.dart
-import 'package:ecommerce_app/detailss2.dart';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 
@@ -128,6 +126,49 @@ class ProductPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+class ProductSuggestionCard extends StatelessWidget {
+  final String imagePath;
+  final String price;
+  final String name;
+  final int rating;
+
+  const ProductSuggestionCard({
+    super.key,
+    required this.imagePath,
+    required this.price,
+    required this.name,
+    required this.rating,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 120,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          Image.asset(imagePath, height: 60),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              rating,
+              (index) => const Icon(Icons.star, color: Colors.orange, size: 14),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(price, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(name),
+        ],
       ),
     );
   }
