@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "653328168076",
+    "project_id": "grad-proj-cc2cd",
+    "storage_bucket": "grad-proj-cc2cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653328168076:android:0f2701b07dd604e559b7a9",
+        "android_client_info": {
+          "package_name": "com.example.ecommerce_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCff5GXrLfYVjwhUgm-rs18fbPbLQJk_n4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

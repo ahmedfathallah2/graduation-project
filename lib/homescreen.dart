@@ -1,3 +1,4 @@
+import 'package:ecommerce_app/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'chatscreen.dart';
@@ -257,7 +258,7 @@ class HomeScreen extends StatelessWidget {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ChatScreen()),
+          MaterialPageRoute(builder: (context) =>  const ChatPage()),
         );
       },
     );

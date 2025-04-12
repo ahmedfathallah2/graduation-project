@@ -6,8 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+   LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool obsecureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +24,8 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 20),
+
             Text(
               "Welcome Back!",
               style: GoogleFonts.poppins(
@@ -26,6 +35,7 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             TextField(
+              
               decoration: InputDecoration(
                 labelText: "Email Address",
                 border: OutlineInputBorder(
@@ -33,15 +43,20 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             TextField(
-              obscureText: true,
+              obscureText: obsecureText,
               decoration: InputDecoration(
                 labelText: "Password",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                suffixIcon: const Icon(Icons.visibility_off),
+                suffixIcon:  IconButton(onPressed: (){
+                    obsecureText = !obsecureText;
+                    setState(() {
+                      
+                    });
+                }, icon:  Icon(obsecureText?Icons.visibility_off:Icons.visibility)),
               ),
             ),
             const SizedBox(height: 10),
@@ -52,7 +67,7 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.grey),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -67,7 +82,7 @@ class LoginScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text("Sign In"),
+              child: const Text("Sign In", style: TextStyle(color: Colors.black),),
             ),
             const SizedBox(height: 15),
             TextButton.icon(

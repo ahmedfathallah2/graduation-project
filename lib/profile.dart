@@ -91,7 +91,7 @@ class ProfileScreen extends StatelessWidget {
                       // Navigate to login screen
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        MaterialPageRoute(builder: (context) =>  LoginScreen()),
                       );
                     },
                   ),
