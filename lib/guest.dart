@@ -1,4 +1,5 @@
 import 'package:ecommerce_app/about.dart';
+import 'package:ecommerce_app/detailss2.dart';
 import 'package:ecommerce_app/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -133,7 +134,7 @@ class DealsScreen extends StatelessWidget {
         itemCount: deals.length,
         itemBuilder: (context, index) {
           final deal = deals[index];
-          return buildDealCard(
+          return buildDealCard(context,
             deal["title"]!,
             deal["price"]!,
             deal["discount"]!,
@@ -144,13 +145,26 @@ class DealsScreen extends StatelessWidget {
     );
   }
 
-  Widget buildDealCard(
-    String title,
-    String price,
-    String discount,
-    String imagePath,
-  ) {
-    return Container(
+  Widget buildDealCard(context, 
+  //
+  String title,
+  String price,
+  String discount,
+  String imagePath,
+) {
+  return GestureDetector(
+    onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) =>const  ProductDetailScreen2(
+        
+      ),
+    ),
+  );
+},
+
+    child: Container(
       width: 160,
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(10),
@@ -184,8 +198,9 @@ class DealsScreen extends StatelessWidget {
           Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget buildSearchButton() {
     return FloatingActionButton(
