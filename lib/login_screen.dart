@@ -31,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 40),
             TextField(
               
               decoration: InputDecoration(
@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
             TextField(
               obscureText: obsecureText,
               decoration: InputDecoration(
