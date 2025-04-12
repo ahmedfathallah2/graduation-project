@@ -43,12 +43,12 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            'kenzy',
+            'user',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
           const Text(
-            'kenzykazak@gmail.com',
+            'user@gmail.com',
             style: TextStyle(fontSize: 14, color: Colors.grey),
           ),
           const SizedBox(height: 30),
