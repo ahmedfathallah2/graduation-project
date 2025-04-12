@@ -6,8 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+   LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool obsecureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +33,7 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             TextField(
+              
               decoration: InputDecoration(
                 labelText: "Email Address",
                 border: OutlineInputBorder(
@@ -35,13 +43,18 @@ class LoginScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             TextField(
-              obscureText: true,
+              obscureText: obsecureText,
               decoration: InputDecoration(
                 labelText: "Password",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                suffixIcon: const Icon(Icons.visibility_off),
+                suffixIcon:  IconButton(onPressed: (){
+                    obsecureText = !obsecureText;
+                    setState(() {
+                      
+                    });
+                }, icon:  Icon(obsecureText?Icons.visibility_off:Icons.visibility)),
               ),
             ),
             const SizedBox(height: 10),
