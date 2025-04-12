@@ -1,8 +1,10 @@
 import 'package:ecommerce_app/chat_page.dart';
-import 'package:ecommerce_app/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-// import 'chatscreen.dart';
+import 'chatscreen.dart';
+import 'profile.dart';
+import 'productdetails.dart';
+import 'models/product.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,7 +20,7 @@ class HomeScreen extends StatelessWidget {
             buildSearchBar(),
             buildCategoryButtons(),
             buildCarouselSlider(),
-            buildDealsSection(),
+            buildDealsSection(context),
           ],
         ),
       ),
@@ -28,10 +30,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Build App Bar (Back Button)
   AppBar buildAppBar() {
     return AppBar(
-      automaticallyImplyLeading: false, // 👈 Removes the back button
+      automaticallyImplyLeading: false,
       backgroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
@@ -39,7 +40,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Build Search Bar
   Widget buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -58,7 +58,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Build Category Buttons
   Widget buildCategoryButtons() {
     List<String> categories = [
       "TV",
@@ -75,32 +74,27 @@ class HomeScreen extends StatelessWidget {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children:
-              categories.map((category) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: const BorderSide(color: Colors.black),
-                      ),
-                    ),
-                    child: Text(category),
+          children: categories.map((category) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Colors.black),
                   ),
-                );
-              }).toList(),
+                ),
+                child: Text(category),
+              ),
+            );
+          }).toList(),
         ),
       ),
     );
   }
-
-  // 🔹 Build Carousel Slider (Banner)
 
   Widget buildCarouselSlider() {
     List<String> images = ['images/pic1.jpg', 'images/pic1.jpg'];
@@ -112,18 +106,40 @@ class HomeScreen extends StatelessWidget {
         enlargeCenterPage: true,
         viewportFraction: 0.9,
       ),
-      items:
-          images.map((imgPath) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(imgPath, fit: BoxFit.cover),
-            );
-          }).toList(),
+      items: images.map((imgPath) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.asset(imgPath, fit: BoxFit.cover),
+        );
+      }).toList(),
     );
   }
 
-  // 🔹 Build "Today's Deals" Section
-  Widget buildDealsSection() {
+  Widget buildDealsSection(BuildContext context) {
+    final List<Product> deals = [
+      Product(
+        name: "iPhone 15 Pro Max",
+        price: "EGP 89,999",
+        discount: "10% off",
+        imageUrl: "images/download.jpg",
+        description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
+      ),
+      Product(
+        name: "Xiaomi Redmi Buds",
+        price: "EGP 698",
+        discount: "50% off",
+        imageUrl: "images/redmi.jpg",
+        description: "Great sound quality, long battery, and sleek design.",
+      ),
+      Product(
+        name: "Samsung Galaxy S24",
+        price: "EGP 72,000",
+        discount: "15% off",
+        imageUrl: "images/s24.webp",
+        description: "Powerful flagship with excellent display and camera.",
+      ),
+    ];
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -137,27 +153,9 @@ class HomeScreen extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: [
-                buildDealCard(
-                  "iPhone 15 Pro Max",
-                  "EGP 89,999",
-                  "10% off",
-                  "images/download.jpg",
-                ),
-                buildDealCard(
-                  "Xiaomi Redmi Buds",
-                  "EGP 698",
-                  "50% off",
-                  "images/redmi.jpg",
-                ),
-                buildDealCard(
-                  "Samsung Galaxy S24",
-                  "EGP 72,000",
-                  "15% off",
-                  "images/s24.webp",
-                ),
-                // Add more cards here
-              ],
+              children: deals
+                  .map((product) => buildDealCard(context, product))
+                  .toList(),
             ),
           ),
         ],
@@ -165,55 +163,59 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Build Individual Deal Card
-  Widget buildDealCard(
-    String title,
-    String price,
-    String discount,
-    String image,
-  ) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-      ),
-      child: Column(
-        children: [
-          Image.asset(image),
-          const SizedBox(height: 5),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+  Widget buildDealCard(BuildContext context, Product product) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailsScreen(product: product),
           ),
-          Text(
-            price,
-            style: const TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
+        );
+      },
+      child: Container(
+        width: 150,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+        ),
+        child: Column(
+          children: [
+            Image.asset(product.imageUrl, height: 90),
+            const SizedBox(height: 5),
+            Text(
+              product.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(top: 5),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(5),
+            Text(
+              product.price,
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            child: Text(
-              discount,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+            Container(
+              margin: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                product.discount,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // 🔹 Build Bottom Navigation Bar
   Widget buildBottomNavBar(BuildContext context) {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
@@ -225,7 +227,7 @@ class HomeScreen extends StatelessWidget {
             icon: const Icon(Icons.home, color: Colors.black),
             onPressed: () {},
           ),
-          const SizedBox(width: 40), // Space for the floating button
+          const SizedBox(width: 40),
           IconButton(
             icon: const Icon(Icons.person, color: Colors.black),
             onPressed: () {
@@ -240,7 +242,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Floating Action Button (Chatbot)
   Widget buildChatButton(BuildContext context) {
     return FloatingActionButton(
       backgroundColor: Colors.blue,
