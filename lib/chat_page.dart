@@ -131,8 +131,9 @@ class _ChatPageState extends State<ChatPage> {
                     decoration: InputDecoration(
                       hintText: "Send a Message",
                       suffixIcon: IconButton(
-                        icon: Icon(Icons.send),
+                        icon: const Icon(Icons.send, color: Colors.blue,),
                         onPressed: () async {
+                          if (message != null || message!.isNotEmpty) {
                           CollectionReference messages = FirebaseFirestore
                               .instance
                               .collection(kMessagesCollection);
@@ -145,7 +146,7 @@ class _ChatPageState extends State<ChatPage> {
                             _controller.position.minScrollExtent,
                             duration: Duration(seconds: 1),
                             curve: Curves.fastOutSlowIn,
-                          );
+                          );}
             
                           controller.clear();
                           FocusScope.of(context).requestFocus(focusNode);

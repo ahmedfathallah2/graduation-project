@@ -1,5 +1,3 @@
-import 'package:ecommerce_app/chat_page.dart';
-import 'package:ecommerce_app/chatscreen.dart';
 import 'package:ecommerce_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
