@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
             buildCarouselSlider(),
             buildDealsSection(context),
             // Inside your HomeScreen build method
-            buildCategoryButtons(context),
+           
 
           ],
         ),
