@@ -4,7 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'profile.dart';
 import 'productdetails.dart';
 import 'models/product.dart';
-
+import 'categoryscreen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -17,9 +17,12 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             buildSearchBar(),
-            buildCategoryButtons(),
+            buildCategoryButtons(context),
             buildCarouselSlider(),
             buildDealsSection(context),
+            // Inside your HomeScreen build method
+            buildCategoryButtons(context),
+
           ],
         ),
       ),
@@ -57,43 +60,52 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget buildCategoryButtons() {
-    List<String> categories = [
-      "TV",
-      "Mobile Phones",
-      "Airpods",
-      "Laptops",
-      "Tablets",
-      "Cameras",
-      "Smart Watches",
-    ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: categories.map((category) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Colors.black),
+Widget buildCategoryButtons(BuildContext context) {
+  List<String> categories = [
+    "TV",
+    "Mobile Phones",
+    "Airpods",
+    "Laptops",
+    "Tablets",
+    "Cameras",
+    "Smart Watches",
+  ];
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: categories.map((category) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryScreen(category: category),
                   ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: Colors.black),
                 ),
-                child: Text(category),
               ),
-            );
-          }).toList(),
-        ),
+              child: Text(category),
+            ),
+          );
+        }).toList(),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget buildCarouselSlider() {
     List<String> images = ['images/pic1.jpg', 'images/pic1.jpg'];
