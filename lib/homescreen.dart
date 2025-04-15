@@ -1,10 +1,12 @@
 import 'package:ecommerce_app/chat_page.dart';
+import 'package:ecommerce_app/models/categproduct.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'profile.dart';
 import 'productdetails.dart';
 import 'models/product.dart';
 import 'categoryscreen.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -62,22 +64,48 @@ class HomeScreen extends StatelessWidget {
 
 
 Widget buildCategoryButtons(BuildContext context) {
-  List<String> categories = [
-    "TV",
-    "Mobile Phones",
-    "Airpods",
-    "Laptops",
-    "Tablets",
-    "Cameras",
-    "Smart Watches",
-  ];
+  Map<String, List<Product2>> categoryProducts = {
+  "TV": [
+    Product2(
+      name: "Samsung Smart TV",
+      imageUrl: 'images/iphone_13.jpg',
+      price: 15000,
+      discount: 15,
+    ),
+  ],
+  "Mobile Phones": [
+    Product2(
+      name: "iPhone 15 Pro Max",
+      imageUrl: "images/iphone_13.jpg",
+      price: 89999,
+      discount: 10,
+    ),
+  ],
+  "Airpods": [
+    Product2(
+      name: "AirPods Pro",
+      imageUrl: "images/iphone_13.jpg",
+      price: 4500,
+      discount: 20,
+    ),
+  ],
+  "smart watches": [
+    Product2(
+      name: "AirPods Pro",
+      imageUrl: "images/iphone_16.png",
+      price: 4500,
+      discount: 20,
+    ),
+  ],
+};
+
 
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16),
     child: SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: categories.map((category) {
+        children: categoryProducts.keys.map((category) {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ElevatedButton(
@@ -85,7 +113,10 @@ Widget buildCategoryButtons(BuildContext context) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CategoryScreen(category: category),
+                    builder: (_) => CategoryScreen(
+                      categoryName: category,
+                      products: categoryProducts[category]!,
+                    ),
                   ),
                 );
               },
@@ -105,6 +136,8 @@ Widget buildCategoryButtons(BuildContext context) {
     ),
   );
 }
+
+
 
 
   Widget buildCarouselSlider() {
