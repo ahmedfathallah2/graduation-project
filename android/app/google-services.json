@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "653328168076",
-    "project_id": "grad-proj-cc2cd",
-    "storage_bucket": "grad-proj-cc2cd.firebasestorage.app"
+    "project_number": "517335807297",
+    "project_id": "smort-shopperdb",
+    "storage_bucket": "smort-shopperdb.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:653328168076:android:0f2701b07dd604e559b7a9",
+        "mobilesdk_app_id": "1:517335807297:android:d10409e929684de6259dc0",
         "android_client_info": {
           "package_name": "com.example.ecommerce_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "517335807297-bfhclh2dvumg0c7vmjvmmoi42vt128t9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCff5GXrLfYVjwhUgm-rs18fbPbLQJk_n4"
+          "current_key": "AIzaSyDxzhhjvWPvA-umVjuQK1gi2z4uS0s9BVw"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "517335807297-bfhclh2dvumg0c7vmjvmmoi42vt128t9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

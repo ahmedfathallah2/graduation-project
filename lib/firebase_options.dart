@@ -41,46 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA5XLwUM5855yeLblHh2r36eZy23Qmjs5c',
-    appId: '1:653328168076:web:71f0596d51755c6459b7a9',
-    messagingSenderId: '653328168076',
-    projectId: 'grad-proj-cc2cd',
-    authDomain: 'grad-proj-cc2cd.firebaseapp.com',
-    storageBucket: 'grad-proj-cc2cd.firebasestorage.app',
+    apiKey: 'AIzaSyBifjDmGSu6F39dULpHb95BR9xdx30Fwsc',
+    appId: '1:517335807297:web:e9cee7a9e9ede9e2259dc0',
+    messagingSenderId: '517335807297',
+    projectId: 'smort-shopperdb',
+    authDomain: 'smort-shopperdb.firebaseapp.com',
+    storageBucket: 'smort-shopperdb.firebasestorage.app',
+    measurementId: 'G-Z4TJYDRYKN',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCff5GXrLfYVjwhUgm-rs18fbPbLQJk_n4',
-    appId: '1:653328168076:android:0f2701b07dd604e559b7a9',
-    messagingSenderId: '653328168076',
-    projectId: 'grad-proj-cc2cd',
-    storageBucket: 'grad-proj-cc2cd.firebasestorage.app',
+    apiKey: 'AIzaSyDxzhhjvWPvA-umVjuQK1gi2z4uS0s9BVw',
+    appId: '1:517335807297:android:d10409e929684de6259dc0',
+    messagingSenderId: '517335807297',
+    projectId: 'smort-shopperdb',
+    storageBucket: 'smort-shopperdb.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBs6MWkj0T-Hx-1yWvvoM0gGVCtlgN_BLw',
-    appId: '1:653328168076:ios:b84825ace4b3399a59b7a9',
-    messagingSenderId: '653328168076',
-    projectId: 'grad-proj-cc2cd',
-    storageBucket: 'grad-proj-cc2cd.firebasestorage.app',
+    apiKey: 'AIzaSyCwtSukn2BMtujEGxlkg_Oa0cg8xLT2d8k',
+    appId: '1:517335807297:ios:6efbe059915ace43259dc0',
+    messagingSenderId: '517335807297',
+    projectId: 'smort-shopperdb',
+    storageBucket: 'smort-shopperdb.firebasestorage.app',
+    iosClientId: '517335807297-jtdoa5grj95itduk1h3m0avn7s6oek7u.apps.googleusercontent.com',
     iosBundleId: 'com.example.ecommerceApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBs6MWkj0T-Hx-1yWvvoM0gGVCtlgN_BLw',
-    appId: '1:653328168076:ios:b84825ace4b3399a59b7a9',
-    messagingSenderId: '653328168076',
-    projectId: 'grad-proj-cc2cd',
-    storageBucket: 'grad-proj-cc2cd.firebasestorage.app',
+    apiKey: 'AIzaSyCwtSukn2BMtujEGxlkg_Oa0cg8xLT2d8k',
+    appId: '1:517335807297:ios:6efbe059915ace43259dc0',
+    messagingSenderId: '517335807297',
+    projectId: 'smort-shopperdb',
+    storageBucket: 'smort-shopperdb.firebasestorage.app',
+    iosClientId: '517335807297-jtdoa5grj95itduk1h3m0avn7s6oek7u.apps.googleusercontent.com',
     iosBundleId: 'com.example.ecommerceApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyA5XLwUM5855yeLblHh2r36eZy23Qmjs5c',
-    appId: '1:653328168076:web:7ee5d6c6501464cb59b7a9',
-    messagingSenderId: '653328168076',
-    projectId: 'grad-proj-cc2cd',
-    authDomain: 'grad-proj-cc2cd.firebaseapp.com',
-    storageBucket: 'grad-proj-cc2cd.firebasestorage.app',
+    apiKey: 'AIzaSyBifjDmGSu6F39dULpHb95BR9xdx30Fwsc',
+    appId: '1:517335807297:web:56737e81893ae7bc259dc0',
+    messagingSenderId: '517335807297',
+    projectId: 'smort-shopperdb',
+    authDomain: 'smort-shopperdb.firebaseapp.com',
+    storageBucket: 'smort-shopperdb.firebasestorage.app',
+    measurementId: 'G-N9E1ZY92NN',
   );
+
 }
