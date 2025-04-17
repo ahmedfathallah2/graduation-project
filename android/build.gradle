@@ -1,4 +1,4 @@
-allprojects {
+wallprojects {
     repositories {
         google()
         mavenCentral()
