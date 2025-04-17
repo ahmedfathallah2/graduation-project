@@ -7,7 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
-   LoginScreen({super.key});
+   const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
