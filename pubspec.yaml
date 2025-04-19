@@ -66,21 +66,22 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/discount-stamp-3.png
-    - images/f35ec12e-04e3-4477-86a2-9d0e9196d839.jpg
-    - images/download.jpg
-    - images/redmi.jpg
-    - images/pic1.jpg
-    - images/s24.webp
-    - images/360_F_508801991_UTsCAOorx25USitqonfRADueJlzyjhDq.jpg
-    - images/vision.jpg
-    - images/mision.jpg
-    - images/google icon.jpg
-    - images/dashboard.jpg
-    - images/iphone_11.jpg
-    - images/iphone_13.jpg
-    - images/iphone_15.png
-    - images/iphone_16.png
+    - images/
+    # - images/discount-stamp-3.png
+    # - images/f35ec12e-04e3-4477-86a2-9d0e9196d839.jpg
+    # - images/download.jpg
+    # - images/redmi.jpg
+    # - images/pic1.jpg
+    # - images/s24.webp
+    # - images/360_F_508801991_UTsCAOorx25USitqonfRADueJlzyjhDq.jpg
+    # - images/vision.jpg
+    # - images/mision.jpg
+    # - images/google icon.jpg
+    # - images/dashboard.jpg
+    # - images/iphone_11.jpg
+    # - images/iphone_13.jpg
+    # - images/iphone_15.png
+    # - images/iphone_16.png
 
 
 
