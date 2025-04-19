@@ -29,6 +29,8 @@ class _ChatPageState extends State<ChatPage> {
   String? message;
   FocusNode focusNode = FocusNode();
 
+  TextDirection direction = TextDirection.ltr;
+
   TextEditingController controller = TextEditingController();
 
   bool isArabic(String text) {
@@ -92,9 +94,19 @@ class _ChatPageState extends State<ChatPage> {
                     top: 5,
                   ),
                   child: TextField(
+                    keyboardType: TextInputType.multiline,
+                    minLines: 1,
+                    maxLines: 20,
+                    textDirection: direction,
                     focusNode: focusNode,
                     showCursor: true,
-                    onChanged: (value) => message = value,
+                    onChanged: (value)
+                     {
+                       message = value;
+                       setState(() {
+                          isArabic(value) ? direction = TextDirection.rtl: direction = TextDirection.ltr;
+                       });
+                    },
                     controller: controller,
                     onSubmitted: (value) async {
                       CollectionReference messages = FirebaseFirestore
@@ -105,17 +117,17 @@ class _ChatPageState extends State<ChatPage> {
                         'date': DateTime.now(),
                         'sender': 'me',
                       });
-            
+                              
                       controller.clear();
                       FocusScope.of(context).requestFocus(focusNode);
-            
+                              
                       _controller.animateTo(
                         _controller.position.minScrollExtent,
                         duration: Duration(seconds: 1),
                         curve: Curves.fastOutSlowIn,
                       );
                       String mes = await getReplyFromAI(message!);
-            
+                              
                       messages.add({
                         'message': mes,
                         'date': DateTime.now(),
@@ -146,10 +158,10 @@ class _ChatPageState extends State<ChatPage> {
                             duration: Duration(seconds: 1),
                             curve: Curves.fastOutSlowIn,
                           );}
-            
+                              
                           controller.clear();
                           FocusScope.of(context).requestFocus(focusNode);
-            
+                              
                           String mes = await getReplyFromAI(message!);
                           messages.add({
                             'message': mes,
