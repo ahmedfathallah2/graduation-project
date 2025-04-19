@@ -56,7 +56,6 @@ class _ChatPageState extends State<ChatPage> {
 
           return Scaffold(
             appBar: AppBar(
-              automaticallyImplyLeading: false,
               title: const Text("Your Shopping Assistant", style: TextStyle(fontWeight: FontWeight.bold,),),
               centerTitle: true,
               backgroundColor: kPrimaryColor,

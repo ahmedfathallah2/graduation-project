@@ -1,13 +1,9 @@
-import 'package:ecommerce_app/firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:ecommerce_app/helpers/firebase_helper.dart';
 import 'package:flutter/material.dart';
 import 'splash_screen.dart'; // Import the splash screen
 
 void main() async{
-    WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await FirebaseHelper.configuration();
   runApp(const MyApp());
 }
 
