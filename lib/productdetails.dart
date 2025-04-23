@@ -9,6 +9,7 @@ class ProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -17,10 +18,7 @@ class ProductPage extends StatelessWidget {
             const SizedBox(height: 20,),
             Row(
               children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.arrow_back),
-                ),
+                IconButton(icon:  Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context),),
                 const SizedBox(width: 16),
                 Image.asset(product.imageUrl, height: 100),
                 const SizedBox(width: 16),
