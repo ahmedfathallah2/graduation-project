@@ -73,10 +73,15 @@ Important return only the json object in the format above
 """;
 
   String collectionMetadata = """
-The collection containing the data is called `products`, and each document in that collection has the following fields: `Brand`, `Category`, `Link`, `Parsed_Storage`, `Price_EGP`, and `Title`.
+The collection containing the data is called `products`, and each document in that collection has the following fields: 
+`Brand` with possible values `Acer`, `Alienware`, `Apple`, `Asus`, `Chuwi`, `Dell`, `Fujitsu`, `Gateway`, `Hp`, `Huawei`, `Lenovo`, `Microsoft`, `Msi`, `Panasonic`, `Razar`, `Samsung`, `Sony`, `Toshiba`;
+`Category` with possible values: `Laptop`, `Smartphone`, `Tablet`, `Other`, `Camera`, `Desktop`;
+`Subcategory` with possible values: `General Laptop`, `Gaming Laptop`, `Business Laptop`, `Programming Laptop`, `Dual SIM Mobile`, `5G Mobile`, `General Mobile`, `Other`;
+ `Link`; `Parsed_Storage`; `Price_EGP`; `Title`.
 """;
 
   String important =
+
       "return only the json object in the format above don't return any other text in all cases";
 
   Future<String> getChatbotResponse(String prompt, bool isQuery) async {
