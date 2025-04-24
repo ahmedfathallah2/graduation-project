@@ -13,6 +13,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: buildAppBar(),
       body: SingleChildScrollView(
         child: Column(
@@ -20,6 +21,7 @@ class HomeScreen extends StatelessWidget {
           children: [
             buildSearchBar(),
             buildCategoryButtons(context),
+            const SizedBox(height: 10),
             buildCarouselSlider(),
             buildDealsSection(context),
             // Inside your HomeScreen build method
