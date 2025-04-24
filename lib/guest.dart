@@ -59,7 +59,7 @@ class DealsScreen extends StatelessWidget {
               elevation: 0,
               side: const BorderSide(color: Colors.black12),
             ),
-            child: const Text('About Us us '),
+            child: const Text('About Us '),
           ),
           GestureDetector(
             onTap: () {
@@ -106,7 +106,7 @@ class DealsScreen extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
       child: Text(
-        "Today's Deal",
+        "",
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );

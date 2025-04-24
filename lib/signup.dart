@@ -1,5 +1,6 @@
 import 'package:ecommerce_app/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -9,7 +10,29 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool _obscurePassword = true;
+  String? errorMessage;
+
+  Future<void> signUp() async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+      // On success navigate to login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        errorMessage = e.message;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +70,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
             const SizedBox(height: 32),
 
             // Name Field
-            buildTextField("Your Name"),
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: "Your Name",
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Email Field
-            buildTextField("Email Address"),
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: "Email Address",
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Password Field
             TextField(
+              controller: passwordController,
               obscureText: _obscurePassword,
               decoration: InputDecoration(
                 labelText: "Password",
@@ -75,6 +123,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Sign Up Button
@@ -82,9 +131,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
-                  // Handle Sign Up
-                },
+                onPressed: signUp,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4C9EEB),
                   shape: RoundedRectangleBorder(
@@ -95,18 +142,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
 
+            // Show error if any
+            if (errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Text(
+                  errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+
             const SizedBox(height: 16),
 
-            // Sign in with Google
+            // Sign in with Google (optional)
             SizedBox(
               width: double.infinity,
               height: 50,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  // Handle Google Sign In
+                  // TODO: Handle Google Sign In
                 },
-                icon: Image.asset('images/google icon.jpg', height: 20), // Add Google icon in assets
-                label: const Text("Sign in with google", style: TextStyle(color: Colors.black)),
+                icon: Image.asset('images/google icon.jpg', height: 20),
+                label: const Text("Sign in with Google",
+                    style: TextStyle(color: Colors.black)),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.grey[100],
                   shape: RoundedRectangleBorder(
@@ -118,13 +176,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
             const Spacer(),
 
-            // Bottom text
+            // Bottom Text
             Center(
               child: TextButton(
                 onPressed: () {
-                  Navigator.push(context,
-                   MaterialPageRoute(builder: (context)=> LoginScreen()));
-                  // Navigate to Sign In Screen
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
                 },
                 child: const Text.rich(
                   TextSpan(
@@ -147,26 +206,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  // Reusable input field
-  Widget buildTextField(String label) {
-    return Column(
-      children: [
-        TextField(
-          decoration: InputDecoration(
-            labelText: label,
-            filled: true,
-            fillColor: Colors.grey[100],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
     );
   }
 }
