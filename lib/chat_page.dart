@@ -154,7 +154,7 @@ class _ChatPageState extends State<ChatPage> {
                         duration: Duration(seconds: 1),
                         curve: Curves.fastOutSlowIn,
                       );
-                      String mes = await getReplyFromAI(value!, true);
+                      String mes = await getReplyFromAI(value, true);
                       mes = mes.substring(7);
                       mes = mes.replaceFirst('```', '');
 
