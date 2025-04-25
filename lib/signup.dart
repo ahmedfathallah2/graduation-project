@@ -18,11 +18,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> signUp() async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // Create user with email and password
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // On success navigate to login
+
+      // Set display name
+      await userCredential.user?.updateDisplayName(nameController.text.trim());
+      await userCredential.user?.reload(); // reload to apply display name
+
+      // Navigate to login screen
       Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
