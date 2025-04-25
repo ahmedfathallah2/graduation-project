@@ -1,11 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/chat_page.dart';
 import 'package:ecommerce_app/models/categproduct.dart';
+import 'package:ecommerce_app/models/jumia_product.dart';
+import 'package:ecommerce_app/models/product.dart';
+import 'package:ecommerce_app/productdetails.dart';
+import 'package:ecommerce_app/profile.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'profile.dart';
-import 'productdetails.dart';
-import 'models/product.dart';
 import 'categoryscreen.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -24,9 +27,8 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 10),
             buildCarouselSlider(),
             buildDealsSection(context),
-            // Inside your HomeScreen build method
-           
-
+            const SizedBox(height: 10),
+            buildFirestoreProductsSection(),
           ],
         ),
       ),
@@ -64,83 +66,78 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget buildCategoryButtons(BuildContext context) {
+    Map<String, List<Product2>> categoryProducts = {
+      "TV": [
+        Product2(
+          name: "Samsung Smart TV",
+          imageUrl: 'images/iphone_13.jpg',
+          price: 15000,
+          discount: 15,
+        ),
+      ],
+      "Mobile Phones": [
+        Product2(
+          name: "iPhone 15 Pro Max",
+          imageUrl: "images/iphone_13.jpg",
+          price: 89999,
+          discount: 10,
+        ),
+      ],
+      "Airpods": [
+        Product2(
+          name: "AirPods Pro",
+          imageUrl: "images/iphone_13.jpg",
+          price: 4500,
+          discount: 20,
+        ),
+      ],
+      "smart watches": [
+        Product2(
+          name: "AirPods Pro",
+          imageUrl: "images/iphone_16.png",
+          price: 4500,
+          discount: 20,
+        ),
+      ],
+    };
 
-Widget buildCategoryButtons(BuildContext context) {
-  Map<String, List<Product2>> categoryProducts = {
-  "TV": [
-    Product2(
-      name: "Samsung Smart TV",
-      imageUrl: 'images/iphone_13.jpg',
-      price: 15000,
-      discount: 15,
-    ),
-  ],
-  "Mobile Phones": [
-    Product2(
-      name: "iPhone 15 Pro Max",
-      imageUrl: "images/iphone_13.jpg",
-      price: 89999,
-      discount: 10,
-    ),
-  ],
-  "Airpods": [
-    Product2(
-      name: "AirPods Pro",
-      imageUrl: "images/iphone_13.jpg",
-      price: 4500,
-      discount: 20,
-    ),
-  ],
-  "smart watches": [
-    Product2(
-      name: "AirPods Pro",
-      imageUrl: "images/iphone_16.png",
-      price: 4500,
-      discount: 20,
-    ),
-  ],
-};
-
-
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: categoryProducts.keys.map((category) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CategoryScreen(
-                      categoryName: category,
-                      products: categoryProducts[category]!,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: categoryProducts.keys.map((category) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CategoryScreen(
+                        categoryName: category,
+                        products: categoryProducts[category]!,
+                      ),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Colors.black),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Colors.black),
                 ),
+                child: Text(category),
               ),
-              child: Text(category),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
-    ),
-  );
-}
-
-
-
+    );
+  }
 
   Widget buildCarouselSlider() {
     List<String> images = ['images/pic1.jpg', 'images/pic1.jpg'];
@@ -169,9 +166,9 @@ Widget buildCategoryButtons(BuildContext context) {
         discount: "10% off",
         imageUrl: "images/download.jpg",
         description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
-        dimensions: ['159.9' , '76.7', '8.3' ],
-        colors: ['white','c'],
-        vendors: ['amazon','jumia']
+        dimensions: ['159.9', '76.7', '8.3'],
+        colors: ['white', 'c'],
+        vendors: ['amazon', 'jumia'],
       ),
       Product(
         name: "Xiaomi Redmi Buds",
@@ -179,21 +176,10 @@ Widget buildCategoryButtons(BuildContext context) {
         discount: "50% off",
         imageUrl: "images/redmi.jpg",
         description: "Great sound quality, long battery, and sleek design.",
-        dimensions: ['45','51','155'],
-        colors: ['white','c'],
-        vendors: ['sd']
+        dimensions: ['45', '51', '155'],
+        colors: ['white', 'c'],
+        vendors: ['sd'],
       ),
-      Product(
-        name: "Samsung Galaxy S24",
-        price: "EGP 72,000",
-        discount: "15% off",
-        imageUrl: "images/s24.webp",
-        description: "Powerful flagship with excellent display and camera.",
-        dimensions: ['45','51','155'],
-        colors: ['white','black'],
-        vendors: ['amazon']
-      ),
-      
     ];
 
     return Padding(
@@ -209,9 +195,7 @@ Widget buildCategoryButtons(BuildContext context) {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: deals
-                  .map((product) => buildDealCard(context, product))
-                  .toList(),
+              children: deals.map((product) => buildDealCard(context, product)).toList(),
             ),
           ),
         ],
@@ -225,7 +209,7 @@ Widget buildCategoryButtons(BuildContext context) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ProductPage(product: product, showDimensions:true),
+            builder: (_) => ProductPage(product: product, showDimensions: true),
           ),
         );
       },
@@ -249,10 +233,7 @@ Widget buildCategoryButtons(BuildContext context) {
             ),
             Text(
               product.price,
-              style: const TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
             Container(
               margin: const EdgeInsets.only(top: 5),
@@ -268,6 +249,68 @@ Widget buildCategoryButtons(BuildContext context) {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildFirestoreProductsSection() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Our Products", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          StreamBuilder<List<JumiaProduct>>(
+            stream: fetchJumiaProducts(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text("Something went wrong");
+              }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final products = snapshot.data!;
+              return SizedBox(
+                height: 240,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+                    return Container(
+                      width: 160,
+                      margin: const EdgeInsets.only(right: 12),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+                      ),
+                      child: Column(
+                        children: [
+                          Image.network(product.imageUrl, height: 100),
+                          const SizedBox(height: 5),
+                          Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -305,8 +348,18 @@ Widget buildCategoryButtons(BuildContext context) {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>  const ChatPage()),
+          MaterialPageRoute(builder: (context) => const ChatPage()),
         );
+      },
+    );
+  }
+
+  Stream<List<JumiaProduct>> fetchJumiaProducts() {
+    return FirebaseFirestore.instance.collection('products').snapshots().map(
+      (snapshot) {
+        return snapshot.docs.map((doc) {
+          return JumiaProduct.fromFirestore(doc.data());
+        }).toList();
       },
     );
   }
