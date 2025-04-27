@@ -1,9 +1,10 @@
-import 'package:ecommerce_app/helpers/firebase_helper.dart';
 import 'package:flutter/material.dart';
-import 'splash_screen.dart'; // Import the splash screen
+import 'package:firebase_core/firebase_core.dart';
+import 'splash_screen.dart'; // Your splash screen
 
-void main() async{
-  await FirebaseHelper.configuration();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // ✅ Initialize Firebase here
   runApp(const MyApp());
 }
 
@@ -14,8 +15,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
-    ); 
+      title: 'Ecommerce App',
+      home: SplashScreen(), // Show splash screen first
+    );
   }
 }
-//comment

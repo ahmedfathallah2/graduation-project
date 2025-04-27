@@ -1,5 +1,6 @@
 import 'package:ecommerce_app/editprofile.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -7,6 +8,13 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Fallback values in case data is null
+    String displayName = user?.displayName ?? 'No name set';
+    String email = user?.email ?? 'No email';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -27,8 +35,10 @@ class ProfileScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.black),
             onPressed: () {
-              Navigator.push(context, 
-              MaterialPageRoute(builder: (context)=>const EditProfileScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+              );
             },
           )
         ],
@@ -42,14 +52,14 @@ class ProfileScreen extends StatelessWidget {
             child: Icon(Icons.person, size: 40, color: Colors.black),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'user',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            displayName,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
-          const Text(
-            'user@gmail.com',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
+          Text(
+            email,
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
           const SizedBox(height: 30),
 
@@ -79,19 +89,19 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.settings_outlined,
                     title: 'Settings',
                   ),
-                  
-                  // 🔴 Logout Button
+
+                  // Logout Button
                   ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: const Text(
                       'Logout',
                       style: TextStyle(fontSize: 16, color: Colors.red),
                     ),
-                    onTap: () {
-                      // Navigate to login screen
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) =>  LoginScreen()),
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
                       );
                     },
                   ),
