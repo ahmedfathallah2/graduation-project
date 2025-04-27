@@ -129,7 +129,6 @@ class _ChatPageState extends State<ChatPage> {
                     showCursor: true,
                     onChanged: (value) {
                       message = value;
-                      debugPrint('message: $message');
                       setState(() {
                         isArabic(value)
                             ? direction = TextDirection.rtl
@@ -158,6 +157,7 @@ class _ChatPageState extends State<ChatPage> {
                       mes = mes.substring(7);
                       mes = mes.replaceFirst('```', '');
 
+                      await FirebaseFirestore.instance.collection('encoded json').add({'message': mes});
                       mes = await runQuery(mes);
 
                       mes = await getReplyFromAI(
@@ -205,6 +205,7 @@ class _ChatPageState extends State<ChatPage> {
                           mes = mes.substring(7);
                           mes = mes.replaceFirst('```', '');
                           // mes = mes.replaceAll(RegExp(r'\s'), '');
+                      await FirebaseFirestore.instance.collection('encoded json').add({'message': mes});
 
                           mes = await runQuery(mes);
                           mes = await getReplyFromAI(
