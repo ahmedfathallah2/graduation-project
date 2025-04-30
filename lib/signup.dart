@@ -1,6 +1,7 @@
 import 'package:ecommerce_app/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -15,8 +16,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final passwordController = TextEditingController();
   bool _obscurePassword = true;
   String? errorMessage;
+  bool isLoading = false;
 
   Future<void> signUp() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+    
     try {
       // Create user with email and password
       UserCredential userCredential = await FirebaseAuth.instance
@@ -27,6 +34,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       // Set display name
       await userCredential.user?.updateDisplayName(nameController.text.trim());
+      
+      // Create user document in Firestore
+      if (userCredential.user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredential.user!.uid)
+            .set({
+          'email': emailController.text.trim(),
+          'username': nameController.text.trim(),
+          'userid': userCredential.user!.uid,
+          'preferences': {
+            'brand': [],
+            'category': [],
+            'subcategory': [],
+            'min_price': 0,
+            'max_price': 10000,
+            'storage': 0,
+          },
+          'wishlist': [],
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
       await userCredential.user?.reload(); // reload to apply display name
 
       // Navigate to login screen
@@ -38,6 +68,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = "An error occurred: $e";
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
       });
     }
   }
@@ -69,7 +107,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              "Let’s Create Account Together",
+              "Let's Create Account Together",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -139,14 +177,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: signUp,
+                onPressed: isLoading ? null : signUp,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4C9EEB),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text("Sign Up", style: TextStyle(fontSize: 16, color: Colors.black)),
+                child: isLoading 
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text("Sign Up", style: TextStyle(fontSize: 16, color: Colors.black)),
               ),
             ),
 
