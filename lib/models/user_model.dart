@@ -38,12 +38,33 @@ class UserPreferences {
       'storage': storage,
     };
   }
+  
+  // Create a copy with potentially modified values
+  UserPreferences copyWith({
+    List<String>? brand,
+    List<String>? category,
+    List<String>? subcategory,
+    num? minPrice,
+    num? maxPrice,
+    num? storage,
+  }) {
+    return UserPreferences(
+      brand: brand ?? this.brand,
+      category: category ?? this.category,
+      subcategory: subcategory ?? this.subcategory,
+      minPrice: minPrice ?? this.minPrice,
+      maxPrice: maxPrice ?? this.maxPrice,
+      storage: storage ?? this.storage,
+    );
+  }
 }
 
 class UserModel {
   String email;
   String username;
   String userId;
+  String location;
+  String mobile;
   UserPreferences preferences;
   List<String> wishlist;
 
@@ -51,6 +72,8 @@ class UserModel {
     required this.email,
     required this.username,
     required this.userId,
+    this.location = '',
+    this.mobile = '',
     required this.preferences,
     this.wishlist = const [],
   });
@@ -61,6 +84,8 @@ class UserModel {
       email: map['email'] ?? '',
       username: map['username'] ?? '',
       userId: map['userid'] ?? '',
+      location: map['location'] ?? '',
+      mobile: map['mobile'] ?? '',
       preferences: UserPreferences.fromMap(map['preferences'] ?? {}),
       wishlist: List<String>.from(map['wishlist'] ?? []),
     );
@@ -72,8 +97,30 @@ class UserModel {
       'email': email,
       'username': username,
       'userid': userId,
+      'location': location,
+      'mobile': mobile,
       'preferences': preferences.toMap(),
       'wishlist': wishlist,
     };
+  }
+  
+  // Create a copy with potentially modified values
+  UserModel copyWith({
+    String? email,
+    String? username,
+    String? location,
+    String? mobile,
+    UserPreferences? preferences,
+    List<String>? wishlist,
+  }) {
+    return UserModel(
+      email: email ?? this.email,
+      username: username ?? this.username,
+      userId: this.userId,
+      location: location ?? this.location,
+      mobile: mobile ?? this.mobile,
+      preferences: preferences ?? this.preferences,
+      wishlist: wishlist ?? this.wishlist,
+    );
   }
 }
