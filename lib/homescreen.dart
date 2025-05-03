@@ -9,9 +9,15 @@ import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final Set<String> wishlist = {};
 
   @override
   Widget build(BuildContext context) {
@@ -204,6 +210,8 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget buildDealCard(BuildContext context, Product product) {
+    final isWishlisted = wishlist.contains(product.name);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -213,42 +221,65 @@ class HomeScreen extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        width: 150,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-        ),
-        child: Column(
-          children: [
-            Image.asset(product.imageUrl, height: 90),
-            const SizedBox(height: 5),
-            Text(
-              product.name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+      child: Stack(
+        children: [
+          Container(
+            width: 150,
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
             ),
-            Text(
-              product.price,
-              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            child: Column(
+              children: [
+                Image.asset(product.imageUrl, height: 90),
+                const SizedBox(height: 5),
+                Text(
+                  product.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  product.price,
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text(
+                    product.discount,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ],
             ),
-            Container(
-              margin: const EdgeInsets.only(top: 5),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(5),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isWishlisted) {
+                    wishlist.remove(product.name);
+                  } else {
+                    wishlist.add(product.name);
+                  }
+                });
+              },
+              child: Icon(
+                isWishlisted ? Icons.favorite : Icons.favorite_border,
+                color: isWishlisted ? Colors.red : Colors.grey,
               ),
-              child: Text(
-                product.discount,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -278,32 +309,56 @@ class HomeScreen extends StatelessWidget {
                   itemCount: products.length,
                   itemBuilder: (context, index) {
                     final product = products[index];
-                    return Container(
-                      width: 160,
-                      margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-                      ),
-                      child: Column(
-                        children: [
-                          Image.network(product.imageUrl, height: 100),
-                          const SizedBox(height: 5),
-                          Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                          Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 5),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
+                    final isWishlisted = wishlist.contains(product.title);
+                    return Stack(
+                      children: [
+                        Container(
+                          width: 160,
+                          margin: const EdgeInsets.only(right: 12),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
                           ),
-                        ],
-                      ),
+                          child: Column(
+                            children: [
+                              Image.network(product.imageUrl, height: 100),
+                              const SizedBox(height: 5),
+                              Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+                              Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 5),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (isWishlisted) {
+                                  wishlist.remove(product.title);
+                                } else {
+                                  wishlist.add(product.title);
+                                }
+                              });
+                            },
+                            child: Icon(
+                              isWishlisted ? Icons.favorite : Icons.favorite_border,
+                              color: isWishlisted ? Colors.red : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
