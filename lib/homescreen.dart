@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
-import '../providers/wishlist_provider.dart'; // update path if needed
+import '../providers/wishlist_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,7 +19,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Set<String> wishlist = {};
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
             buildCategoryButtons(context),
             const SizedBox(height: 10),
             buildCarouselSlider(),
-            buildDealsSection(context),
-            const SizedBox(height: 10),
             buildFirestoreProductsSection(),
+            const SizedBox(height: 10),
+            buildDealsSection(context),
           ],
         ),
       ),
@@ -60,6 +61,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value.toLowerCase().trim();
+          });
+        },
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search, color: Colors.grey),
           hintText: "Search",
@@ -76,38 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget buildCategoryButtons(BuildContext context) {
     Map<String, List<Product2>> categoryProducts = {
-      "TV": [
-        Product2(
-          name: "Samsung Smart TV",
-          imageUrl: 'images/iphone_13.jpg',
-          price: 15000,
-          discount: 15,
-        ),
-      ],
-      "Mobile Phones": [
-        Product2(
-          name: "iPhone 15 Pro Max",
-          imageUrl: "images/iphone_13.jpg",
-          price: 89999,
-          discount: 10,
-        ),
-      ],
-      "Airpods": [
-        Product2(
-          name: "AirPods Pro",
-          imageUrl: "images/iphone_13.jpg",
-          price: 4500,
-          discount: 20,
-        ),
-      ],
-      "smart watches": [
-        Product2(
-          name: "AirPods Pro",
-          imageUrl: "images/iphone_16.png",
-          price: 4500,
-          discount: 20,
-        ),
-      ],
+      "TV": [Product2(name: "Samsung Smart TV", imageUrl: 'images/iphone_13.jpg', price: 15000, discount: 15)],
+      "Mobile Phones": [Product2(name: "iPhone 15 Pro Max", imageUrl: "images/iphone_13.jpg", price: 89999, discount: 10)],
+      "Airpods": [Product2(name: "AirPods Pro", imageUrl: "images/iphone_13.jpg", price: 4500, discount: 20)],
+      "smart watches": [Product2(name: "AirPods Pro", imageUrl: "images/iphone_16.png", price: 4500, discount: 20)],
     };
 
     return Padding(
@@ -149,7 +128,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget buildCarouselSlider() {
     List<String> images = ['images/pic1.jpg', 'images/pic1.jpg'];
-
     return CarouselSlider(
       options: CarouselOptions(
         height: 150,
@@ -195,16 +173,11 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Today's Deal",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
+          const Text("Today's Deal", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: deals.map((product) => buildDealCard(context, product)).toList(),
-            ),
+            child: Row(children: deals.map((product) => buildDealCard(context, product)).toList()),
           ),
         ],
       ),
@@ -212,162 +185,134 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildDealCard(BuildContext context, Product product) {
-    final isWishlisted = wishlist.contains(product.name);
-
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => ProductPage(product: product, showDimensions: true),
-          ),
+          MaterialPageRoute(builder: (_) => ProductPage(product: product, showDimensions: true)),
         );
       },
-      child: Stack(
-        children: [
-          Container(
-            width: 150,
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+      child: Container(
+        width: 150,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+        ),
+        child: Column(
+          children: [
+            Image.asset(product.imageUrl, height: 90),
+            const SizedBox(height: 5),
+            Text(product.name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(product.price, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            Container(
+              margin: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
+              child: Text(product.discount, style: const TextStyle(color: Colors.white, fontSize: 12)),
             ),
-            child: Column(
-              children: [
-                Image.asset(product.imageUrl, height: 90),
-                const SizedBox(height: 5),
-                Text(
-                  product.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  product.price,
-                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 5),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Text(
-                    product.discount,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 8,
-            right: 8,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  if (isWishlisted) {
-                    wishlist.remove(product.name);
-                  } else {
-                    wishlist.add(product.name);
-                  }
-                });
-              },
-              child: Icon(
-                isWishlisted ? Icons.favorite : Icons.favorite_border,
-                color: isWishlisted ? Colors.red : Colors.grey,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget buildFirestoreProductsSection() {
-  return Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Our Products", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        StreamBuilder<List<JumiaProduct>>(
-          stream: fetchJumiaProducts(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return const Text("Something went wrong");
-            }
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final products = snapshot.data!;
-            return SizedBox(
-              height: 240,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  final wishlistProvider = Provider.of<WishlistProvider>(context);
-                  final isWishlisted = wishlistProvider.isInWishlist(product);
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Our Products", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          StreamBuilder<List<JumiaProduct>>(
+            stream: fetchJumiaProducts(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text("Something went wrong");
+              }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                  return Stack(
-                    children: [
-                      Container(
-                        width: 160,
-                        margin: const EdgeInsets.only(right: 12),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-                        ),
-                        child: Column(
-                          children: [
-                            Image.network(product.imageUrl, height: 100),
-                            const SizedBox(height: 5),
-                            Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                            Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 5),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(5),
+              final allProducts = snapshot.data!;
+              final products = _searchQuery.isEmpty
+                  ? allProducts
+                  : allProducts.where((product) {
+                      final title = product.title.toLowerCase();
+                      final brand = product.brand.toLowerCase();
+                      final category = product.category.toLowerCase();
+                      return title.contains(_searchQuery) ||
+                          brand.contains(_searchQuery) ||
+                          category.contains(_searchQuery);
+                    }).toList();
+
+              if (products.isEmpty) {
+                return const Center(child: Text("No products found 😕"));
+              }
+
+              return SizedBox(
+                height: 240,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+                    final wishlistProvider = Provider.of<WishlistProvider>(context);
+                    final isWishlisted = wishlistProvider.isInWishlist(product);
+
+                    return Stack(
+                      children: [
+                        Container(
+                          width: 160,
+                          margin: const EdgeInsets.only(right: 12),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+                          ),
+                          child: Column(
+                            children: [
+                              Image.network(product.imageUrl, height: 100),
+                              const SizedBox(height: 5),
+                              Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+                              Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 5),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
+                                child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
                               ),
-                              child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: GestureDetector(
-                          onTap: () {
-                            wishlistProvider.toggleWishlist(product);
-                          },
-                          child: Icon(
-                            isWishlisted ? Icons.favorite : Icons.favorite_border,
-                            color: isWishlisted ? Colors.red : Colors.grey,
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            );
-          },
-        ),
-      ],
-    ),
-  );
-}
-
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: GestureDetector(
+                            onTap: () {
+                              wishlistProvider.toggleWishlist(product);
+                            },
+                            child: Icon(
+                              isWishlisted ? Icons.favorite : Icons.favorite_border,
+                              color: isWishlisted ? Colors.red : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget buildBottomNavBar(BuildContext context) {
     return BottomAppBar(
