@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/chat_page.dart';
-import 'package:ecommerce_app/models/categproduct.dart';
 import 'package:ecommerce_app/models/jumia_product.dart';
 import 'package:ecommerce_app/models/product.dart';
 import 'package:ecommerce_app/productdetails.dart';
@@ -21,6 +20,32 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  Map<String, List<JumiaProduct>> _categorizedProducts = {};
+  bool _isLoadingCategories = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAndGroupProducts();
+  }
+
+  void fetchAndGroupProducts() async {
+    final snapshot = await FirebaseFirestore.instance.collection('products').get();
+    final allProducts = snapshot.docs.map((doc) => JumiaProduct.fromFirestore(doc.data())).toList();
+
+    final Map<String, List<JumiaProduct>> grouped = {};
+    for (var product in allProducts) {
+      if (!grouped.containsKey(product.category)) {
+        grouped[product.category] = [];
+      }
+      grouped[product.category]!.add(product);
+    }
+
+    setState(() {
+      _categorizedProducts = grouped;
+      _isLoadingCategories = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,19 +107,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildCategoryButtons(BuildContext context) {
-    Map<String, List<Product2>> categoryProducts = {
-      "TV": [Product2(name: "Samsung Smart TV", imageUrl: 'images/iphone_13.jpg', price: 15000, discount: 15)],
-      "Mobile Phones": [Product2(name: "iPhone 15 Pro Max", imageUrl: "images/iphone_13.jpg", price: 89999, discount: 10)],
-      "Airpods": [Product2(name: "AirPods Pro", imageUrl: "images/iphone_13.jpg", price: 4500, discount: 20)],
-      "smart watches": [Product2(name: "AirPods Pro", imageUrl: "images/iphone_16.png", price: 4500, discount: 20)],
-    };
+    if (_isLoadingCategories) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: categoryProducts.keys.map((category) {
+          children: _categorizedProducts.keys.map((category) {
             return Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ElevatedButton(
@@ -104,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(
                       builder: (_) => CategoryScreen(
                         categoryName: category,
-                        products: categoryProducts[category]!,
+                        products: _categorizedProducts[category]!,
                       ),
                     ),
                   );
@@ -141,81 +163,6 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Image.asset(imgPath, fit: BoxFit.cover),
         );
       }).toList(),
-    );
-  }
-
-  Widget buildDealsSection(BuildContext context) {
-    final List<Product> deals = [
-      Product(
-        name: "iPhone 15 Pro Max",
-        price: "EGP 89,999",
-        discount: "10% off",
-        imageUrl: "images/download.jpg",
-        description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
-        dimensions: ['159.9', '76.7', '8.3'],
-        colors: ['white', 'c'],
-        vendors: ['amazon', 'jumia'],
-      ),
-      Product(
-        name: "Xiaomi Redmi Buds",
-        price: "EGP 698",
-        discount: "50% off",
-        imageUrl: "images/redmi.jpg",
-        description: "Great sound quality, long battery, and sleek design.",
-        dimensions: ['45', '51', '155'],
-        colors: ['white', 'c'],
-        vendors: ['sd'],
-      ),
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Today's Deal", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(children: deals.map((product) => buildDealCard(context, product)).toList()),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildDealCard(BuildContext context, Product product) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ProductPage(product: product, showDimensions: true)),
-        );
-      },
-      child: Container(
-        width: 150,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-        ),
-        child: Column(
-          children: [
-            Image.asset(product.imageUrl, height: 90),
-            const SizedBox(height: 5),
-            Text(product.name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text(product.price, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-            Container(
-              margin: const EdgeInsets.only(top: 5),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
-              child: Text(product.discount, style: const TextStyle(color: Colors.white, fontSize: 12)),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -310,6 +257,81 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget buildDealsSection(BuildContext context) {
+    final List<Product> deals = [
+      Product(
+        name: "iPhone 15 Pro Max",
+        price: "EGP 89,999",
+        discount: "10% off",
+        imageUrl: "images/download.jpg",
+        description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
+        dimensions: ['159.9', '76.7', '8.3'],
+        colors: ['white', 'c'],
+        vendors: ['amazon', 'jumia'],
+      ),
+      Product(
+        name: "Xiaomi Redmi Buds",
+        price: "EGP 698",
+        discount: "50% off",
+        imageUrl: "images/redmi.jpg",
+        description: "Great sound quality, long battery, and sleek design.",
+        dimensions: ['45', '51', '155'],
+        colors: ['white', 'c'],
+        vendors: ['sd'],
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Today's Deal", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: deals.map((product) => buildDealCard(context, product)).toList()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDealCard(BuildContext context, Product product) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ProductPage(product: product, showDimensions: true)),
+        );
+      },
+      child: Container(
+        width: 150,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+        ),
+        child: Column(
+          children: [
+            Image.asset(product.imageUrl, height: 90),
+            const SizedBox(height: 5),
+            Text(product.name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(product.price, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            Container(
+              margin: const EdgeInsets.only(top: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
+              child: Text(product.discount, style: const TextStyle(color: Colors.white, fontSize: 12)),
+            ),
+          ],
+        ),
       ),
     );
   }
