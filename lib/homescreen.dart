@@ -174,8 +174,11 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Text("Our Products", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
-          StreamBuilder<List<JumiaProduct>>(
-            stream: fetchJumiaProducts(),
+          // Update this part in buildFirestoreProductsSection()
+          // Replace the existing StreamBuilder with this implementation:
+
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('products').snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return const Text("Something went wrong");
@@ -184,7 +187,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final allProducts = snapshot.data!;
+              final allProducts = snapshot.data!.docs.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                data['id'] = doc.id; // Add document ID to the data
+                return JumiaProduct.fromFirestore(data);
+              }).toList();
+
               final products = _searchQuery.isEmpty
                   ? allProducts
                   : allProducts.where((product) {
@@ -210,46 +218,51 @@ class _HomeScreenState extends State<HomeScreen> {
                     final wishlistProvider = Provider.of<WishlistProvider>(context);
                     final isWishlisted = wishlistProvider.isInWishlist(product);
 
-                    return Stack(
-                      children: [
-                        Container(
-                          width: 160,
-                          margin: const EdgeInsets.only(right: 12),
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-                          ),
-                          child: Column(
-                            children: [
-                              Image.network(product.imageUrl, height: 100),
-                              const SizedBox(height: 5),
-                              Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                              Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 5),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
-                                child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: GestureDetector(
-                            onTap: () {
-                              wishlistProvider.toggleWishlist(product);
-                            },
-                            child: Icon(
-                              isWishlisted ? Icons.favorite : Icons.favorite_border,
-                              color: isWishlisted ? Colors.red : Colors.grey,
+                    return GestureDetector(
+                      onTap: () {
+                        // Add navigation to product details page
+                      },
+                      child: Stack(
+                        children: [
+                          Container(
+                            width: 160,
+                            margin: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+                            ),
+                            child: Column(
+                              children: [
+                                Image.network(product.imageUrl, height: 100),
+                                const SizedBox(height: 5),
+                                Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+                                Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 5),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
+                                  child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: () {
+                                wishlistProvider.toggleWishlist(product);
+                              },
+                              child: Icon(
+                                isWishlisted ? Icons.favorite : Icons.favorite_border,
+                                color: isWishlisted ? Colors.red : Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -379,7 +392,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return FirebaseFirestore.instance.collection('products').snapshots().map(
       (snapshot) {
         return snapshot.docs.map((doc) {
-          return JumiaProduct.fromFirestore(doc.data());
+          final data = doc.data();
+          data['id'] = doc.id; // Add document ID to the data
+          return JumiaProduct.fromFirestore(data);
         }).toList();
       },
     );
