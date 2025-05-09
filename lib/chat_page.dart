@@ -1,3 +1,4 @@
+import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/constants.dart';
 import 'package:ecommerce_app/helpers/parser.dart';
@@ -6,6 +7,7 @@ import 'package:ecommerce_app/services/gemini_service.dart';
 import 'package:ecommerce_app/widgets/message_widget.dart';
 import 'package:ecommerce_app/widgets/message_widget_for_ai.dart';
 import 'package:flutter/material.dart';
+import 'package:sentiment_dart/sentiment_dart.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, required this.email});
@@ -16,12 +18,10 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final gemini = GeminiService();
-
+  String? feedback;
   Future<String> getReplyFromAI(String message, bool isQuery) async {
     return await gemini.getChatbotResponse(message, isQuery);
   }
-
-  
 
   final _controller = ScrollController();
   String? message;
@@ -64,8 +64,8 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     CollectionReference messages = FirebaseFirestore.instance.collection(
-    '${widget.email}_messages',
-  );
+      '${widget.email}_messages',
+    );
     return StreamBuilder<QuerySnapshot>(
       stream: messages.orderBy('date', descending: true).snapshots(),
       builder: (context, snapshot) {
@@ -84,6 +84,126 @@ class _ChatPageState extends State<ChatPage> {
 
           return Scaffold(
             appBar: AppBar(
+              leading: IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      double rating = 0;
+                      TextEditingController feedbackController =
+                          TextEditingController();
+
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return AlertDialog(
+                            title: Text("Feedback",),
+                            content: SizedBox(
+                              width: 300,
+                              height: 150,
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20,),
+
+                                  Text("Rate your experience", style: TextStyle(fontWeight: FontWeight.bold),),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(5, (index) {
+                                      return IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            rating = index + 1;
+                                          });
+                                        },
+                                        icon: Icon(
+                                          index < rating
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                  SizedBox(height: 10,),
+                                  TextField(
+                                    cursorColor: Colors.black,
+                                    controller: feedbackController,
+                                    
+                                    decoration: InputDecoration(
+                                      labelStyle: TextStyle(color: Colors.black),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: Colors.black
+                                        )
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: Colors.black
+                                        )
+                                      ),
+                                      labelText: 'Feedback',
+                                    ),
+                                    onChanged: (value) {
+                                      feedback = value;
+                                      debugPrint(feedback);
+                                      debugPrint('$rating');
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Skip', style: TextStyle(color: Colors.black),),
+                              ), 
+                              TextButton(
+                                onPressed: () {
+                                  CherryToast.info(
+                                    disableToastAnimation: true,
+                                    title: const Text(
+                                      'Your shopping assistant',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    action: const Text(
+                                      'Thank you for your feedback❤️',
+                                    ),
+                                    inheritThemeColors: true,
+                                    actionHandler: () {},
+
+                                    onToastClosed: () {},
+                                  ).show(context);
+                                  double score = Sentiment.analysis(feedback!).score;
+                                  String sentiment = score > 0? 'Positive': score < 0? 'Negative': 'Neutral';
+                                  FirebaseFirestore.instance
+                                      .collection('feedback')
+                                      .add({
+                                        'sentiment': sentiment,
+                                        'feedback': feedback,
+                                        'rating': rating,
+                                      });
+
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Submit', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                              ),
+                              
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+                icon: Icon(Icons.arrow_back_ios),
+              ),
               title: const Text(
                 "Your Shopping Assistant",
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -159,7 +279,9 @@ class _ChatPageState extends State<ChatPage> {
                       mes = mes.substring(7);
                       mes = mes.replaceFirst('```', '');
 
-                      await FirebaseFirestore.instance.collection('encoded json').add({'message': mes});
+                      await FirebaseFirestore.instance
+                          .collection('encoded json')
+                          .add({'message': mes});
                       mes = await runQuery(mes);
 
                       mes = await getReplyFromAI(
@@ -207,7 +329,9 @@ class _ChatPageState extends State<ChatPage> {
                           mes = mes.substring(7);
                           mes = mes.replaceFirst('```', '');
                           // mes = mes.replaceAll(RegExp(r'\s'), '');
-                      await FirebaseFirestore.instance.collection('encoded json').add({'message': mes});
+                          await FirebaseFirestore.instance
+                              .collection('encoded json')
+                              .add({'message': mes});
 
                           mes = await runQuery(mes);
                           mes = await getReplyFromAI(
