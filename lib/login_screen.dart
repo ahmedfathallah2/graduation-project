@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) =>  HomeScreen(email : emailController.text.trim())),
       );
     } on FirebaseAuthException catch (e) {
       setState(() {

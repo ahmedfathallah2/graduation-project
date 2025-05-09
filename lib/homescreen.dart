@@ -11,7 +11,8 @@ import 'package:provider/provider.dart';
 import '../providers/wishlist_provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.email});
+  final String email;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -382,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ChatPage()),
+          MaterialPageRoute(builder: (context) =>  ChatPage(email: widget.email)),
         );
       },
     );

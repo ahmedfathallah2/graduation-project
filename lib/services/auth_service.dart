@@ -7,7 +7,7 @@ class AuthService {
         email: email,
         password: password,
       );
-      return null; // Success
+      return null; // Success 
     } on FirebaseAuthException catch (e) {
       return e.message; // Show error message
     }

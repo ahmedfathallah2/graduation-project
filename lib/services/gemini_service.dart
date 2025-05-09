@@ -90,8 +90,8 @@ The collection containing the data is called `products`, and each document in th
             ? """
 The collection containing the data is called `products`, and each document in that collection has the following fields: 
 `Brand` with possible values `Acer`, `Alienware`, `Apple`, `Asus`, `Chuwi`, `Dell`, `Fujitsu`, `Gateway`, `Hp`, `Huawei`, `Lenovo`, `Microsoft`, `Msi`, `Panasonic`, `Razar`, `Samsung`, `Sony`, `Toshiba`;
-`Category` with possible values: `Laptop`, `Smartphone`, `Tablet`, `Other`, `Camera`, `Desktop`;
-`Subcategory` with possible values: `General Laptop`, `Gaming Laptop`, `Business Laptop`, `Programming Laptop`, `Dual SIM Mobile`, `5G Mobile`, `General Mobile`, `Other`;
+`Category` with possible values: `Smartphone`, `Laptop`, `Tablet`, `Desktop`, `Camera`, `Other`, `Headphones`, `Smartwatch`;
+`Subcategory` with possible values: `Programming Laptop`, `General Laptop`, `Other`, `Business Laptop`, `Gaming Laptop`, `General Mobile`, `Budget Mobile`, `Camera Mobile`, `5G Mobile`, `Gaming Mobile`, `Dual SIM Mobile`, `5G Dual SIM Mobile`;
  `Link`; `Parsed_Storage`; `Price_EGP`; `Title`.
 """
             : "";
@@ -156,6 +156,8 @@ format:
   },
   "limit": 10
 }
+
+
 
 Use only Firestore operators supported in Dart SDK such as isEqualTo, isNotEqualTo, isGreaterThan, isLessThan, arrayContains, etc.
 

@@ -8,7 +8,8 @@ import 'package:ecommerce_app/widgets/message_widget_for_ai.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  const ChatPage({super.key, required this.email});
+  final String email;
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
@@ -20,9 +21,7 @@ class _ChatPageState extends State<ChatPage> {
     return await gemini.getChatbotResponse(message, isQuery);
   }
 
-  CollectionReference messages = FirebaseFirestore.instance.collection(
-    kMessagesCollection,
-  );
+  
 
   final _controller = ScrollController();
   String? message;
@@ -64,6 +63,9 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference messages = FirebaseFirestore.instance.collection(
+    '${widget.email}_messages',
+  );
     return StreamBuilder<QuerySnapshot>(
       stream: messages.orderBy('date', descending: true).snapshots(),
       builder: (context, snapshot) {
@@ -138,7 +140,7 @@ class _ChatPageState extends State<ChatPage> {
                     controller: controller,
                     onSubmitted: (value) async {
                       CollectionReference messages = FirebaseFirestore.instance
-                          .collection(kMessagesCollection);
+                          .collection('${widget.email}_messages');
                       messages.add({
                         'message': value,
                         'date': DateTime.now(),
@@ -184,7 +186,7 @@ class _ChatPageState extends State<ChatPage> {
                           if (message != null || message!.isNotEmpty) {
                             CollectionReference messages = FirebaseFirestore
                                 .instance
-                                .collection(kMessagesCollection);
+                                .collection('${widget.email}_messages');
                             messages.add({
                               'message': message,
                               'date': DateTime.now(),
