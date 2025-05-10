@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ecommerce_app/adminedit.dart';
 import 'package:flutter/material.dart';
+import 'adminedit.dart';
+import 'admin_dashboard_screen.dart';
 import 'models/jumia_product.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -21,6 +22,16 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       appBar: AppBar(
         title: const Text('Admin home'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            tooltip: 'Dashboard',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.edit),
             tooltip: 'Edit Products',
