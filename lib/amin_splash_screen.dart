@@ -1,6 +1,5 @@
 import 'package:ecommerce_app/admin_homescreen.dart';
 import 'package:flutter/material.dart';
-import 'adminedit.dart';
 // ignore: camel_case_types
 class adminsplashscreen extends StatelessWidget {
   const adminsplashscreen({super.key});
