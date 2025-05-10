@@ -1,11 +1,11 @@
-// FULL HOME SCREEN WITH PAGINATED PRODUCT SECTION
-
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/chat_page.dart';
 import 'package:ecommerce_app/models/jumia_product.dart';
 import 'package:ecommerce_app/models/product.dart';
 import 'package:ecommerce_app/productdetails.dart';
 import 'package:ecommerce_app/profile.dart';
+import 'package:ecommerce_app/services/search_service.dart';
 import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -27,6 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoadingCategories = true;
 
   List<JumiaProduct> _products = [];
+  List<JumiaProduct> _searchResults = [];
+  bool _isSearching = false;
+  bool _isLoadingSearch = false;
   DocumentSnapshot? _lastDocument;
   bool _isLoadingMore = false;
   bool _hasMore = true;
@@ -111,6 +114,41 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _performSearch(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        _isSearching = false;
+        _searchResults = [];
+      });
+      return;
+    }
+
+    // Debounce search to avoid frequent Firestore calls
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () async {
+      setState(() {
+        _isLoadingSearch = true;
+        _isSearching = true;
+      });
+
+      try {
+        final results = await SearchService.searchProducts(query);
+        setState(() {
+          _searchResults = results;
+          _isLoadingSearch = false;
+        });
+      } catch (e) {
+        print('Search error: $e');
+        setState(() {
+          _isLoadingSearch = false;
+        });
+      }
+    });
+  }
+  
+  Timer? _searchDebounce;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,12 +159,20 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             buildSearchBar(),
-            buildCategoryButtons(context),
-            const SizedBox(height: 10),
-            buildCarouselSlider(),
-            buildFirestoreProductsSection(),
-            const SizedBox(height: 10),
-            buildDealsSection(context),
+            if (_isSearching)
+              buildSearchResults()
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildCategoryButtons(context),
+                  const SizedBox(height: 10),
+                  buildCarouselSlider(),
+                  buildFirestoreProductsSection(),
+                  const SizedBox(height: 10),
+                  buildDealsSection(context),
+                ],
+              ),
           ],
         ),
       ),
@@ -155,9 +201,22 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _searchQuery = value.toLowerCase().trim();
           });
+          _performSearch(_searchQuery);
         },
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                      _isSearching = false;
+                    });
+                  },
+                )
+              : null,
           hintText: "Search",
           filled: true,
           fillColor: Colors.grey[200],
@@ -166,6 +225,157 @@ class _HomeScreenState extends State<HomeScreen> {
             borderSide: BorderSide.none,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildSearchResults() {
+    if (_isLoadingSearch) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_searchResults.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text(
+            "No products found. Try a different search term.",
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Search Results (${_searchResults.length})",
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.7,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: _searchResults.length,
+            itemBuilder: (context, index) {
+              final product = _searchResults[index];
+              final wishlistProvider = Provider.of<WishlistProvider>(
+                context,
+              );
+              final isWishlisted = wishlistProvider.isInWishlist(product);
+
+              return GestureDetector(
+                onTap: () {
+                  // Navigate to product details
+                  // You can create a JumiaProductDetails page similar to ProductPage
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade300,
+                            blurRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Image.network(
+                              product.imageUrl,
+                              height: 100,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 100,
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: Icon(Icons.image_not_supported),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            product.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            product.brand,
+                            style: TextStyle(
+                              fontSize: 12, 
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            'EGP ${product.priceEGP}',
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: const Text(
+                              "0%",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () => wishlistProvider.toggleWishlist(product),
+                        child: Icon(
+                          isWishlisted ? Icons.favorite : Icons.favorite_border,
+                          color: isWishlisted ? Colors.red : Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -234,17 +444,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildFirestoreProductsSection() {
-    final filteredProducts =
-        _searchQuery.isEmpty
-            ? _products
-            : _products.where((product) {
-              final title = product.title.toLowerCase();
-              final brand = product.brand.toLowerCase();
-              final category = product.category.toLowerCase();
-              return title.contains(_searchQuery) ||
-                  brand.contains(_searchQuery) ||
-                  category.contains(_searchQuery);
-            }).toList();
+    // Only filter local products when not in search mode
+    final filteredProducts = _searchQuery.isEmpty
+        ? _products
+        : _products.where((product) {
+            final title = product.title.toLowerCase();
+            final brand = product.brand.toLowerCase();
+            final category = product.category.toLowerCase();
+            return title.contains(_searchQuery) ||
+                brand.contains(_searchQuery) ||
+                category.contains(_searchQuery);
+          }).toList();
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -256,7 +466,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          if (filteredProducts.isEmpty)
+          if (filteredProducts.isEmpty && !_isSearching)
             const Center(child: Text("No products found 😕"))
           else
             SizedBox(
@@ -363,7 +573,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
-                  if (_hasMore)
+                  if (_hasMore && !_isSearching)
                     ElevatedButton(
                       onPressed: _fetchMoreProducts,
                       child:
