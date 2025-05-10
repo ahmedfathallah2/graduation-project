@@ -6,6 +6,7 @@ import 'package:ecommerce_app/models/product.dart';
 import 'package:ecommerce_app/productdetails.dart';
 import 'package:ecommerce_app/profile.dart';
 import 'package:ecommerce_app/services/search_service.dart';
+import 'package:ecommerce_app/services/recommendation_service.dart';
 import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -35,11 +36,33 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _hasMore = true;
   final int _limit = 100;
 
+  
+  final RecommendationService _recommendationService = RecommendationService();
+  List<JumiaProduct> _recommendedProducts = [];
+  bool _isLoadingRecommendations = true;
+
   @override
   void initState() {
     super.initState();
     fetchAndGroupProducts();
     _fetchInitialProducts();
+    _fetchRecommendations();
+  }
+
+  Future<void> _fetchRecommendations() async {
+    setState(() => _isLoadingRecommendations = true);
+    
+    try {
+      final recommendations = await _recommendationService.fetchRecommendations();
+      
+      setState(() {
+        _recommendedProducts = recommendations;
+        _isLoadingRecommendations = false;
+      });
+    } catch (e) {
+      print('Error loading recommendations: $e');
+      setState(() => _isLoadingRecommendations = false);
+    }
   }
 
   void fetchAndGroupProducts() async {
@@ -590,47 +613,116 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildDealsSection(BuildContext context) {
-    final List<Product> deals = [
-      Product(
-        name: "iPhone 15 Pro Max",
-        price: "EGP 89,999",
-        discount: "10% off",
-        imageUrl: "images/download.jpg",
-        description:
-            "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
-        dimensions: ['159.9', '76.7', '8.3'],
-        colors: ['white', 'c'],
-        vendors: ['amazon', 'jumia'],
-      ),
-      Product(
-        name: "Xiaomi Redmi Buds",
-        price: "EGP 698",
-        discount: "50% off",
-        imageUrl: "images/redmi.jpg",
-        description: "Great sound quality, long battery, and sleek design.",
-        dimensions: ['45', '51', '155'],
-        colors: ['white', 'c'],
-        vendors: ['sd'],
-      ),
-    ];
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Most Recomended",
+            "Most Recommended",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children:
-                  deals
-                      .map((product) => buildDealCard(context, product))
-                      .toList(),
+          
+          if (_isLoadingRecommendations)
+            const Center(child: CircularProgressIndicator())
+          else if (_recommendedProducts.isEmpty)
+            const Center(
+              child: Text(
+                "No recommendations available yet",
+                style: TextStyle(color: Colors.grey),
+              ),
+            )
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _recommendedProducts.map((product) => 
+                  buildRecommendedProductCard(context, product)
+                ).toList(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildRecommendedProductCard(BuildContext context, JumiaProduct product) {
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    final isWishlisted = wishlistProvider.isInWishlist(product);
+    
+    return GestureDetector(
+      onTap: () {
+        // Navigate to product details when tapped
+        // You'll need to implement JumiaProductDetails page or use ProductPage with conversion
+      },
+      child: Stack(
+        children: [
+          Container(
+            width: 150,
+            margin: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.white,
+              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Image.network(
+                    product.imageUrl,
+                    height: 90,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 90,
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: Icon(Icons.image_not_supported),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  product.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                Text(
+                  'EGP ${product.priceEGP}',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: const Text(
+                    "Recommended",
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: () => wishlistProvider.toggleWishlist(product),
+              child: Icon(
+                isWishlisted ? Icons.favorite : Icons.favorite_border,
+                color: isWishlisted ? Colors.red : Colors.grey,
+              ),
             ),
           ),
         ],
