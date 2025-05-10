@@ -1,5 +1,6 @@
+import 'package:ecommerce_app/admin_homescreen.dart';
 import 'package:flutter/material.dart';
-
+import 'adminedit.dart';
 // ignore: camel_case_types
 class adminsplashscreen extends StatelessWidget {
   const adminsplashscreen({super.key});
@@ -53,7 +54,8 @@ class adminsplashscreen extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () {Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const AdminHomeScreen()));
                     // Handle Sign In
                   },
                   style: ElevatedButton.styleFrom(
