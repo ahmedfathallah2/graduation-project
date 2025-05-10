@@ -1,3 +1,5 @@
+// FULL HOME SCREEN WITH PAGINATED PRODUCT SECTION
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/chat_page.dart';
 import 'package:ecommerce_app/models/jumia_product.dart';
@@ -24,15 +26,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, List<JumiaProduct>> _categorizedProducts = {};
   bool _isLoadingCategories = true;
 
+  List<JumiaProduct> _products = [];
+  DocumentSnapshot? _lastDocument;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
+  final int _limit = 100;
+
   @override
   void initState() {
     super.initState();
     fetchAndGroupProducts();
+    _fetchInitialProducts();
   }
 
   void fetchAndGroupProducts() async {
-    final snapshot = await FirebaseFirestore.instance.collection('products').get();
-    final allProducts = snapshot.docs.map((doc) => JumiaProduct.fromFirestore(doc.data())).toList();
+    final snapshot =
+        await FirebaseFirestore.instance.collection('products').get();
+    final allProducts =
+        snapshot.docs
+            .map((doc) => JumiaProduct.fromFirestore(doc.data()))
+            .toList();
 
     final Map<String, List<JumiaProduct>> grouped = {};
     for (var product in allProducts) {
@@ -45,6 +58,56 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _categorizedProducts = grouped;
       _isLoadingCategories = false;
+    });
+  }
+
+  Future<void> _fetchInitialProducts() async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('products')
+            .orderBy('Title')
+            .limit(_limit)
+            .get();
+
+    final fetched =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          return JumiaProduct.fromFirestore(data);
+        }).toList();
+
+    setState(() {
+      _products = fetched;
+      _lastDocument = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+      _hasMore = snapshot.docs.length == _limit;
+    });
+  }
+
+  Future<void> _fetchMoreProducts() async {
+    if (_isLoadingMore || !_hasMore) return;
+    setState(() => _isLoadingMore = true);
+
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('products')
+            .orderBy('Title')
+            .startAfterDocument(_lastDocument!)
+            .limit(_limit)
+            .get();
+
+    final fetched =
+        snapshot.docs.map((doc) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          return JumiaProduct.fromFirestore(data);
+        }).toList();
+
+    setState(() {
+      _products.addAll(fetched);
+      _lastDocument =
+          snapshot.docs.isNotEmpty ? snapshot.docs.last : _lastDocument;
+      _hasMore = snapshot.docs.length == _limit;
+      _isLoadingMore = false;
     });
   }
 
@@ -117,33 +180,35 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: _categorizedProducts.keys.map((category) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CategoryScreen(
-                        categoryName: category,
-                        products: _categorizedProducts[category]!,
+          children:
+              _categorizedProducts.keys.map((category) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => CategoryScreen(
+                                categoryName: category,
+                                products: _categorizedProducts[category]!,
+                              ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: const BorderSide(color: Colors.black),
                       ),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Colors.black),
+                    child: Text(category),
                   ),
-                ),
-                child: Text(category),
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
         ),
       ),
     );
@@ -158,118 +223,157 @@ class _HomeScreenState extends State<HomeScreen> {
         enlargeCenterPage: true,
         viewportFraction: 0.9,
       ),
-      items: images.map((imgPath) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.asset(imgPath, fit: BoxFit.cover),
-        );
-      }).toList(),
+      items:
+          images.map((imgPath) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(imgPath, fit: BoxFit.cover),
+            );
+          }).toList(),
     );
   }
 
   Widget buildFirestoreProductsSection() {
+    final filteredProducts =
+        _searchQuery.isEmpty
+            ? _products
+            : _products.where((product) {
+              final title = product.title.toLowerCase();
+              final brand = product.brand.toLowerCase();
+              final category = product.category.toLowerCase();
+              return title.contains(_searchQuery) ||
+                  brand.contains(_searchQuery) ||
+                  category.contains(_searchQuery);
+            }).toList();
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Our Products", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          // Update this part in buildFirestoreProductsSection()
-          // Replace the existing StreamBuilder with this implementation:
-
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection('products').snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Text("Something went wrong");
-              }
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final allProducts = snapshot.data!.docs.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                data['id'] = doc.id; // Add document ID to the data
-                return JumiaProduct.fromFirestore(data);
-              }).toList();
-
-              final products = _searchQuery.isEmpty
-                  ? allProducts
-                  : allProducts.where((product) {
-                      final title = product.title.toLowerCase();
-                      final brand = product.brand.toLowerCase();
-                      final category = product.category.toLowerCase();
-                      return title.contains(_searchQuery) ||
-                          brand.contains(_searchQuery) ||
-                          category.contains(_searchQuery);
-                    }).toList();
-
-              if (products.isEmpty) {
-                return const Center(child: Text("No products found 😕"));
-              }
-
-              return SizedBox(
-                height: 240,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    final wishlistProvider = Provider.of<WishlistProvider>(context);
-                    final isWishlisted = wishlistProvider.isInWishlist(product);
-
-                    return GestureDetector(
-                      onTap: () {
-                        // Add navigation to product details page
-                      },
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 160,
-                            margin: const EdgeInsets.only(right: 12),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-                            ),
-                            child: Column(
-                              children: [
-                                Image.network(product.imageUrl, height: 100),
-                                const SizedBox(height: 5),
-                                Text(product.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                                Text('EGP ${product.priceEGP}', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 5),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
-                                  child: const Text("0%", style: TextStyle(color: Colors.white, fontSize: 12)),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: GestureDetector(
-                              onTap: () {
-                                wishlistProvider.toggleWishlist(product);
-                              },
-                              child: Icon(
-                                isWishlisted ? Icons.favorite : Icons.favorite_border,
-                                color: isWishlisted ? Colors.red : Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
+          const Text(
+            "Our Products",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 10),
+          if (filteredProducts.isEmpty)
+            const Center(child: Text("No products found 😕"))
+          else
+            SizedBox(
+              height: 260,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = filteredProducts[index];
+                        final wishlistProvider = Provider.of<WishlistProvider>(
+                          context,
+                        );
+                        final isWishlisted = wishlistProvider.isInWishlist(
+                          product,
+                        );
+
+                        return GestureDetector(
+                          onTap: () {},
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 160,
+                                margin: const EdgeInsets.only(right: 12),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.shade300,
+                                      blurRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Image.network(
+                                      product.imageUrl,
+                                      height: 100,
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      product.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+
+                                    Text(
+                                      'EGP ${product.priceEGP}',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+
+                                    const SizedBox(height: 5),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: const Text(
+                                        "0%",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: GestureDetector(
+                                  onTap:
+                                      () => wishlistProvider.toggleWishlist(
+                                        product,
+                                      ),
+                                  child: Icon(
+                                    isWishlisted
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color:
+                                        isWishlisted ? Colors.red : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (_hasMore)
+                    ElevatedButton(
+                      onPressed: _fetchMoreProducts,
+                      child:
+                          _isLoadingMore
+                              ? const CircularProgressIndicator()
+                              : const Text("Load More"),
+                    ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -282,7 +386,8 @@ class _HomeScreenState extends State<HomeScreen> {
         price: "EGP 89,999",
         discount: "10% off",
         imageUrl: "images/download.jpg",
-        description: "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
+        description:
+            "The latest iPhone 15 Pro Max with A17 chip and amazing performance.",
         dimensions: ['159.9', '76.7', '8.3'],
         colors: ['white', 'c'],
         vendors: ['amazon', 'jumia'],
@@ -304,11 +409,19 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Today's Deal", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text(
+            "Today's Deal",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(children: deals.map((product) => buildDealCard(context, product)).toList()),
+            child: Row(
+              children:
+                  deals
+                      .map((product) => buildDealCard(context, product))
+                      .toList(),
+            ),
           ),
         ],
       ),
@@ -320,7 +433,9 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => ProductPage(product: product, showDimensions: true)),
+          MaterialPageRoute(
+            builder: (_) => ProductPage(product: product, showDimensions: true),
+          ),
         );
       },
       child: Container(
@@ -336,13 +451,29 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Image.asset(product.imageUrl, height: 90),
             const SizedBox(height: 5),
-            Text(product.name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text(product.price, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            Text(
+              product.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              product.price,
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             Container(
               margin: const EdgeInsets.only(top: 5),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(5)),
-              child: Text(product.discount, style: const TextStyle(color: Colors.white, fontSize: 12)),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                product.discount,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
             ),
           ],
         ),
@@ -383,20 +514,10 @@ class _HomeScreenState extends State<HomeScreen> {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) =>  ChatPage(email: widget.email)),
+          MaterialPageRoute(
+            builder: (context) => ChatPage(email: widget.email),
+          ),
         );
-      },
-    );
-  }
-
-  Stream<List<JumiaProduct>> fetchJumiaProducts() {
-    return FirebaseFirestore.instance.collection('products').snapshots().map(
-      (snapshot) {
-        return snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id; // Add document ID to the data
-          return JumiaProduct.fromFirestore(data);
-        }).toList();
       },
     );
   }
