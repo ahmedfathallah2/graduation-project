@@ -44,6 +44,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'email': emailController.text.trim(),
           'username': nameController.text.trim(),
           'userid': userCredential.user!.uid,
+          'isAdmin': false,  // Default to false for new users
           'preferences': {
             'brand': [],
             'category': [],

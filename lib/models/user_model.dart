@@ -65,6 +65,7 @@ class UserModel {
   String userId;
   String location;
   String mobile;
+  bool isAdmin;  // New field for admin status
   UserPreferences preferences;
   List<String> wishlist;
 
@@ -74,6 +75,7 @@ class UserModel {
     required this.userId,
     this.location = '',
     this.mobile = '',
+    this.isAdmin = false,  // Default to false for new users
     required this.preferences,
     this.wishlist = const [],
   });
@@ -86,6 +88,7 @@ class UserModel {
       userId: map['userid'] ?? '',
       location: map['location'] ?? '',
       mobile: map['mobile'] ?? '',
+      isAdmin: map['isAdmin'] ?? false,  // Handle the isAdmin field
       preferences: UserPreferences.fromMap(map['preferences'] ?? {}),
       wishlist: List<String>.from(map['wishlist'] ?? []),
     );
@@ -99,6 +102,7 @@ class UserModel {
       'userid': userId,
       'location': location,
       'mobile': mobile,
+      'isAdmin': isAdmin,  // Include isAdmin in the map
       'preferences': preferences.toMap(),
       'wishlist': wishlist,
     };
@@ -110,6 +114,7 @@ class UserModel {
     String? username,
     String? location,
     String? mobile,
+    bool? isAdmin,  // Add isAdmin to copyWith
     UserPreferences? preferences,
     List<String>? wishlist,
   }) {
@@ -119,6 +124,7 @@ class UserModel {
       userId: this.userId,
       location: location ?? this.location,
       mobile: mobile ?? this.mobile,
+      isAdmin: isAdmin ?? this.isAdmin,  // Use provided isAdmin or default to current value
       preferences: preferences ?? this.preferences,
       wishlist: wishlist ?? this.wishlist,
     );
