@@ -1,5 +1,6 @@
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:ecommerce_app/constants.dart';
 import 'package:ecommerce_app/helpers/parser.dart';
 import 'package:ecommerce_app/models/message_model.dart';
@@ -7,7 +8,6 @@ import 'package:ecommerce_app/services/gemini_service.dart';
 import 'package:ecommerce_app/widgets/message_widget.dart';
 import 'package:ecommerce_app/widgets/message_widget_for_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:sentiment_dart/sentiment_dart.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, required this.email});
@@ -96,15 +96,20 @@ class _ChatPageState extends State<ChatPage> {
                       return StatefulBuilder(
                         builder: (context, setState) {
                           return AlertDialog(
-                            title: Text("Feedback",),
+                            title: Text("Feedback"),
                             content: SizedBox(
                               width: 300,
                               height: 150,
                               child: Column(
                                 children: [
-                                  SizedBox(height: 20,),
+                                  SizedBox(height: 20),
 
-                                  Text("Rate your experience", style: TextStyle(fontWeight: FontWeight.bold),),
+                                  Text(
+                                    "Rate your experience",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: List.generate(5, (index) {
@@ -123,24 +128,26 @@ class _ChatPageState extends State<ChatPage> {
                                       );
                                     }),
                                   ),
-                                  SizedBox(height: 10,),
+                                  SizedBox(height: 10),
                                   TextField(
                                     cursorColor: Colors.black,
                                     controller: feedbackController,
-                                    
+
                                     decoration: InputDecoration(
-                                      labelStyle: TextStyle(color: Colors.black),
+                                      labelStyle: TextStyle(
+                                        color: Colors.black,
+                                      ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),
                                         borderSide: BorderSide(
-                                          color: Colors.black
-                                        )
+                                          color: Colors.black,
+                                        ),
                                       ),
                                       enabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12),
                                         borderSide: BorderSide(
-                                          color: Colors.black
-                                        )
+                                          color: Colors.black,
+                                        ),
                                       ),
                                       labelText: 'Feedback',
                                     ),
@@ -159,10 +166,13 @@ class _ChatPageState extends State<ChatPage> {
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Skip', style: TextStyle(color: Colors.black),),
-                              ), 
+                                child: Text(
+                                  'Skip',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   CherryToast.info(
                                     disableToastAnimation: true,
                                     title: const Text(
@@ -179,12 +189,43 @@ class _ChatPageState extends State<ChatPage> {
 
                                     onToastClosed: () {},
                                   ).show(context);
-                                  double score = Sentiment.analysis(feedback!).score;
-                                  String sentiment = score > 0? 'Positive': score < 0? 'Negative': 'Neutral';
+
+                                  final dio = Dio();
+
+                                  String? sentiment;
+                                  final inputText = "good service";
+
+                                  final url =
+                                      'https://api-inference.huggingface.co/models/tabularisai/multilingual-sentiment-analysis';
+
+                                  final token =
+                                      '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';
+
+                                  try {
+                                    final response = await dio.post(
+                                      url,
+                                      options: Options(
+                                        headers: {
+                                          'Authorization': 'Bearer $token',
+                                          'Content-Type': 'application/json',
+                                        },
+                                      ),
+                                      data: {'inputs': inputText},
+                                    );
+
+                                    final results =
+                                        response.data[0] as List<dynamic>;
+
+                                    sentiment = results.reduce(
+                                      (a, b) => a['score'] > b['score'] ? a : b,
+                                    );
+                                  } catch (e) {}
                                   FirebaseFirestore.instance
                                       .collection('feedback')
                                       .add({
-                                        'sentiment': sentiment,
+                                        'sentiment':
+                                            sentiment ??
+                                            'No sentiment analysis',
                                         'feedback': feedback,
                                         'rating': rating,
                                       });
@@ -192,9 +233,14 @@ class _ChatPageState extends State<ChatPage> {
                                   Navigator.of(context).pop();
                                   Navigator.of(context).pop();
                                 },
-                                child: Text('Submit', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                                child: Text(
+                                  'Submit',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                              
                             ],
                           );
                         },
