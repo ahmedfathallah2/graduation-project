@@ -1,15 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/jumia_product.dart';
+import 'product_cache_service.dart';
 
 class SearchService {
-  // Search across products in Firestore with flexible partial matching
+  static final ProductCacheService _cacheService = ProductCacheService();
+  
+  // Search across products in Firestore with caching
   static Future<List<JumiaProduct>> searchProducts(String query) async {
     if (query.isEmpty) {
       return [];
     }
 
     // Convert to lowercase for consistency
-    final searchQuery = query.toLowerCase();
+    final searchQuery = query.toLowerCase().trim();
+    
+    // Check cache first
+    final cachedResultIds = _cacheService.getCachedSearchResults(searchQuery);
+    if (cachedResultIds != null && cachedResultIds.isNotEmpty) {
+      print('Using cached search results for "$searchQuery"');
+      final cachedProducts = _cacheService.getProducts(cachedResultIds);
+      
+      // If we have all products in cache, return them
+      if (cachedProducts.length == cachedResultIds.length) {
+        return cachedProducts;
+      }
+    }
+    
+    // Cache miss - perform the search on Firestore
+    print('Cache miss for search "$searchQuery" - fetching from Firestore');
+    
     final List<JumiaProduct> results = [];
     final Set<String> processedIds = {};
     
@@ -145,6 +164,16 @@ class SearchService {
       } catch (e) {
         print('Error in last resort search: $e');
       }
+    }
+    
+    // Cache the results
+    if (results.isNotEmpty) {
+      // Cache both the product objects and the search results
+      await _cacheService.cacheProducts(results);
+      await _cacheService.cacheSearchResults(
+        searchQuery, 
+        results.map((p) => p.id).toList()
+      );
     }
     
     return results;

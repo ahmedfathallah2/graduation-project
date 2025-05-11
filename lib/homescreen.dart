@@ -7,6 +7,8 @@ import 'package:ecommerce_app/productdetails.dart';
 import 'package:ecommerce_app/profile.dart';
 import 'package:ecommerce_app/services/search_service.dart';
 import 'package:ecommerce_app/services/recommendation_service.dart';
+import 'package:ecommerce_app/services/product_cache_service.dart';
+import 'package:ecommerce_app/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -44,9 +46,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeCache();
+    _fetchRecommendations();
+  }
+
+  Future<void> _initializeCache() async {
+    await ProductCacheService().initCache();
     fetchAndGroupProducts();
     _fetchInitialProducts();
-    _fetchRecommendations();
   }
 
   Future<void> _fetchRecommendations() async {
@@ -66,75 +73,109 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void fetchAndGroupProducts() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('products').get();
-    final allProducts =
-        snapshot.docs
-            .map((doc) => JumiaProduct.fromFirestore(doc.data()))
-            .toList();
-
-    final Map<String, List<JumiaProduct>> grouped = {};
-    for (var product in allProducts) {
-      if (!grouped.containsKey(product.category)) {
-        grouped[product.category] = [];
+    setState(() => _isLoadingCategories = true);
+    
+    // Try to use cached products first
+    final cachedProducts = ProductCacheService().getAllProducts();
+    
+    if (cachedProducts.isNotEmpty) {
+      // Use cached products
+      final Map<String, List<JumiaProduct>> grouped = {};
+      for (var product in cachedProducts) {
+        if (!grouped.containsKey(product.category)) {
+          grouped[product.category] = [];
+        }
+        grouped[product.category]!.add(product);
       }
-      grouped[product.category]!.add(product);
-    }
+      
+      setState(() {
+        _categorizedProducts = grouped;
+        _isLoadingCategories = false;
+      });
+    } else {
+      // Fallback to Firestore
+      final snapshot = await FirebaseFirestore.instance.collection('products').get();
+      final allProducts = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return JumiaProduct.fromFirestore(data);
+      }).toList();
+      
+      // Cache the products
+      await ProductCacheService().cacheProducts(allProducts);
+      
+      final Map<String, List<JumiaProduct>> grouped = {};
+      for (var product in allProducts) {
+        if (!grouped.containsKey(product.category)) {
+          grouped[product.category] = [];
+        }
+        grouped[product.category]!.add(product);
+      }
 
-    setState(() {
-      _categorizedProducts = grouped;
-      _isLoadingCategories = false;
-    });
+      if (mounted) {
+        setState(() {
+          _categorizedProducts = grouped;
+          _isLoadingCategories = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchInitialProducts() async {
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('products')
-            .orderBy('Title')
-            .limit(_limit)
-            .get();
-
-    final fetched =
-        snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          return JumiaProduct.fromFirestore(data);
-        }).toList();
-
-    setState(() {
-      _products = fetched;
-      _lastDocument = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
-      _hasMore = snapshot.docs.length == _limit;
-    });
+    setState(() => _isLoadingMore = true);
+    
+    // Use the updated ProductService
+    final products = await ProductService.fetchProducts(limit: _limit);
+    
+    if (mounted) {
+      setState(() {
+        _products = products;
+        _isLoadingMore = false;
+        _hasMore = products.length == _limit;
+      });
+    }
   }
 
   Future<void> _fetchMoreProducts() async {
     if (_isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
+    
+    // We need the last document for pagination
+    // First, get the last document reference
+    final lastDocSnapshot = await FirebaseFirestore.instance
+        .collection('products')
+        .orderBy('Title')
+        .where(FieldPath.documentId, isEqualTo: _products.last.id)
+        .limit(1)
+        .get();
+    
+    if (lastDocSnapshot.docs.isEmpty) {
+      setState(() => _isLoadingMore = false);
+      return;
+    }
+    
+    // Use the ProductService with pagination
+    final moreProducts = await ProductService.fetchProducts(
+      startAfter: lastDocSnapshot.docs.first,
+      limit: _limit
+    );
+    
+    if (mounted) {
+      setState(() {
+        _products.addAll(moreProducts);
+        _isLoadingMore = false;
+        _hasMore = moreProducts.length == _limit;
+      });
+    }
+  }
 
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('products')
-            .orderBy('Title')
-            .startAfterDocument(_lastDocument!)
-            .limit(_limit)
-            .get();
-
-    final fetched =
-        snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          return JumiaProduct.fromFirestore(data);
-        }).toList();
-
-    setState(() {
-      _products.addAll(fetched);
-      _lastDocument =
-          snapshot.docs.isNotEmpty ? snapshot.docs.last : _lastDocument;
-      _hasMore = snapshot.docs.length == _limit;
-      _isLoadingMore = false;
-    });
+  Future<void> refreshData() async {
+    // Clear product cache
+    await ProductCacheService().clearCache();
+    
+    // Re-initialize
+    await _initializeCache();
+    await _fetchRecommendations();
   }
 
   Future<void> _performSearch(String query) async {
@@ -177,26 +218,29 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: buildAppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildSearchBar(),
-            if (_isSearching)
-              buildSearchResults()
-            else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildCategoryButtons(context),
-                  const SizedBox(height: 10),
-                  buildCarouselSlider(),
-                  buildFirestoreProductsSection(),
-                  const SizedBox(height: 10),
-                  buildDealsSection(context),
-                ],
-              ),
-          ],
+      body: RefreshIndicator(
+        onRefresh: refreshData,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildSearchBar(),
+              if (_isSearching)
+                buildSearchResults()
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                    buildCategoryButtons(context),
+                   const SizedBox(height: 10),
+                   buildCarouselSlider(),
+                    buildFirestoreProductsSection(),
+                    const SizedBox(height: 10),
+                    buildDealsSection(context),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: buildBottomNavBar(context),
