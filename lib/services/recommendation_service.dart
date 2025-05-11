@@ -1,6 +1,3 @@
-// Step 1: Create a recommendation_service.dart file
-// lib/services/recommendation_service.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/jumia_product.dart';
@@ -26,12 +23,16 @@ class RecommendationService {
           .get();
 
       if (!recommendationDoc.exists || recommendationDoc.data() == null) {
+        print('No recommendations document found for user: $currentUserId');
         return [];
       }
 
       // Extract the array of recommended products
       Map<String, dynamic> data = recommendationDoc.data() as Map<String, dynamic>;
-      List<dynamic> recommendedProducts = data['products'] ?? [];
+      
+      // Check if recommendations field exists and is not empty
+      List<dynamic> recommendedProducts = data['recommendations'] ?? [];
+      print('Found ${recommendedProducts.length} recommendations for user: $currentUserId');
       
       // Convert each product map to JumiaProduct
       return recommendedProducts.map((productMap) {
