@@ -71,3 +71,7 @@ lib/
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+## *Marking the 100th commit*
+
+Very Epic milestone.
