@@ -2,12 +2,13 @@ import 'package:ecommerce_app/amin_splash_screen.dart';
 import 'package:ecommerce_app/guest.dart';
 import 'package:ecommerce_app/homescreen.dart';
 import 'package:ecommerce_app/signup.dart';
-import 'package:ecommerce_app/admin_homescreen.dart'; // Import the admin home screen
+import 'package:ecommerce_app/admin_homescreen.dart';
+import 'package:ecommerce_app/password_reset_screen.dart'; // Import the new reset screen
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   String? errorMessage;
-  bool isLoading = false; // Add loading state
+  bool isLoading = false;
 
   Future<void> signIn() async {
     setState(() {
@@ -78,6 +79,123 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showPasswordResetDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Reset Password'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('How would you like to reset your password?'),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showEmailResetDialog();
+                  },
+                  child: Text('Email Link'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PasswordResetScreen(),
+                      ),
+                    );
+                  },
+                  child: Text('Custom Reset'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showEmailResetDialog() {
+    final emailController = TextEditingController();
+    String? errorMessage;
+    bool isLoading = false;
+    
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Reset Password via Email'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email Address',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              if (errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    errorMessage!,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        setState(() {
+                          isLoading = true;
+                          errorMessage = null;
+                        });
+                        try {
+                          await FirebaseAuth.instance.sendPasswordResetEmail(
+                            email: emailController.text.trim(),
+                          );
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            SnackBar(
+                              content: Text('Password reset email sent!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          setState(() {
+                            errorMessage = e.message;
+                          });
+                        } catch (e) {
+                          setState(() {
+                            errorMessage = 'An unexpected error occurred';
+                          });
+                        } finally {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        }
+                      },
+                child: isLoading
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2.0),
+                      )
+                    : Text('Send Reset Email'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,11 +244,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            const Align(
+            Align(
               alignment: Alignment.centerRight,
-              child: Text(
-                "Recovery Password",
-                style: TextStyle(color: Colors.grey),
+              child: GestureDetector(
+                onTap: () => _showPasswordResetDialog(),
+                child: const Text(
+                  "Recovery Password",
+                  style: TextStyle(color: Colors.grey),
+                ),
               ),
             ),
             const SizedBox(height: 10),
