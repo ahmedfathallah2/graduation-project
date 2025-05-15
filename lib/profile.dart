@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'profile_extension.dart';
 import 'services/wishlist_service.dart';
 import 'models/user_model.dart';
 import 'login_screen.dart';
@@ -188,6 +189,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ],
+
+                  SmartPreferencesBanner(
+                    userData: userData,
+                    isLoading: isLoading,
+                  ),
 
                   // Wishlist Summary
                   StreamBuilder<List<String>>(
