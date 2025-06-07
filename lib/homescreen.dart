@@ -74,10 +74,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void fetchAndGroupProducts() async {
     setState(() => _isLoadingCategories = true);
-    
+
     // Try to use cached products first
     final cachedProducts = ProductCacheService().getAllProducts();
-    
+
     if (cachedProducts.isNotEmpty) {
       // Use cached products
       final Map<String, List<JumiaProduct>> grouped = {};
@@ -85,32 +85,53 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!grouped.containsKey(product.category)) {
           grouped[product.category] = [];
         }
-        grouped[product.category]!.add(product);
+        // Only keep first 20 per category for display
+        if (grouped[product.category]!.length < 20) {
+          grouped[product.category]!.add(product);
+        }
       }
-      
+
       setState(() {
         _categorizedProducts = grouped;
         _isLoadingCategories = false;
       });
     } else {
-      // Fallback to Firestore
-      final snapshot = await FirebaseFirestore.instance.collection('products').get();
-      final allProducts = snapshot.docs.map((doc) {
+      // Get all unique categories (first 5) from Firestore
+      final categorySnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .limit(100) // adjust if needed
+          .get();
+
+      final categories = <String>{};
+      for (var doc in categorySnapshot.docs) {
         final data = doc.data();
-        data['id'] = doc.id;
-        return JumiaProduct.fromFirestore(data);
-      }).toList();
-      
-      // Cache the products
-      await ProductCacheService().cacheProducts(allProducts);
-      
-      final Map<String, List<JumiaProduct>> grouped = {};
-      for (var product in allProducts) {
-        if (!grouped.containsKey(product.category)) {
-          grouped[product.category] = [];
+        if (data.containsKey('Category')) {
+          categories.add(data['Category']);
         }
-        grouped[product.category]!.add(product);
       }
+
+      final Map<String, List<JumiaProduct>> grouped = {};
+
+      // For each category, fetch first 20 products
+      for (final category in categories) {
+        final productsSnapshot = await FirebaseFirestore.instance
+            .collection('products')
+            .where('Category', isEqualTo: category)
+            .limit(20)
+            .get();
+
+        final products = productsSnapshot.docs.map((doc) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          return JumiaProduct.fromFirestore(data);
+        }).toList();
+
+        grouped[category] = products;
+      }
+
+      // Flatten all products for caching
+      final allProducts = grouped.values.expand((x) => x).toList();
+      await ProductCacheService().cacheProducts(allProducts);
 
       if (mounted) {
         setState(() {
