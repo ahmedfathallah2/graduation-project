@@ -26,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  Map<String, List<JumiaProduct>> _categorizedProducts = {};
+  List<String> _categories = [];
   bool _isLoadingCategories = true;
 
   List<JumiaProduct> _products = [];
@@ -36,9 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
   DocumentSnapshot? _lastDocument;
   bool _isLoadingMore = false;
   bool _hasMore = true;
-  final int _limit = 100;
+  final int _limit = 20;
 
-  
   final RecommendationService _recommendationService = RecommendationService();
   List<JumiaProduct> _recommendedProducts = [];
   bool _isLoadingRecommendations = true;
@@ -46,157 +45,97 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeCache();
+    _fetchCategories();
+    _fetchProducts();
     _fetchRecommendations();
   }
 
-  Future<void> _initializeCache() async {
-    await ProductCacheService().initCache();
-    fetchAndGroupProducts();
-    _fetchInitialProducts();
+  Future<void> _fetchCategories() async {
+    setState(() => _isLoadingCategories = true);
+    final snapshot = await FirebaseFirestore.instance
+        .collection('products')
+        .limit(100)
+        .get();
+
+    final categories = <String>{};
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      if (data.containsKey('Category')) {
+        categories.add(data['Category']);
+      }
+    }
+    setState(() {
+      _categories = categories.toList();
+      _isLoadingCategories = false;
+    });
+  }
+
+  Future<void> _fetchProducts({bool loadMore = false, String? category}) async {
+    if (_isLoadingMore) return;
+    setState(() => _isLoadingMore = true);
+
+    Query query = FirebaseFirestore.instance
+        .collection('products')
+        .orderBy('Title')
+        .limit(_limit);
+
+    if (category != null) {
+      query = query.where('Category', isEqualTo: category);
+    }
+
+    if (loadMore && _lastDocument != null) {
+      query = query.startAfterDocument(_lastDocument!);
+    }
+
+    final snapshot = await query.get();
+    final products = snapshot.docs.map((doc) {
+      final data = doc.data();
+      if (data != null) {
+        final mapData = data as Map<String, dynamic>;
+        mapData['id'] = doc.id;
+        return JumiaProduct.fromFirestore(mapData);
+      }
+      return null;
+    }).where((product) => product != null).cast<JumiaProduct>().toList();
+
+    setState(() {
+      if (loadMore) {
+        _products.addAll(products);
+      } else {
+        _products = products;
+      }
+      _lastDocument = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+      _hasMore = snapshot.docs.length == _limit;
+      _isLoadingMore = false;
+    });
+  }
+
+  Future<void> _fetchMoreProducts() async {
+    if (!_hasMore || _isLoadingMore) return;
+    await _fetchProducts(loadMore: true);
+  }
+
+  Future<void> refreshData() async {
+    setState(() {
+      _products.clear();
+      _lastDocument = null;
+      _hasMore = true;
+    });
+    await _fetchProducts();
+    await _fetchRecommendations();
   }
 
   Future<void> _fetchRecommendations() async {
     setState(() => _isLoadingRecommendations = true);
-    
     try {
       final recommendations = await _recommendationService.fetchRecommendations();
-      
       setState(() {
         _recommendedProducts = recommendations;
         _isLoadingRecommendations = false;
       });
     } catch (e) {
-      print('Error loading recommendations: $e');
       setState(() => _isLoadingRecommendations = false);
     }
-  }
-
-  void fetchAndGroupProducts() async {
-    setState(() => _isLoadingCategories = true);
-
-    // Try to use cached products first
-    final cachedProducts = ProductCacheService().getAllProducts();
-
-    if (cachedProducts.isNotEmpty) {
-      // Use cached products
-      final Map<String, List<JumiaProduct>> grouped = {};
-      for (var product in cachedProducts) {
-        if (!grouped.containsKey(product.category)) {
-          grouped[product.category] = [];
-        }
-        // Only keep first 20 per category for display
-        if (grouped[product.category]!.length < 20) {
-          grouped[product.category]!.add(product);
-        }
-      }
-
-      setState(() {
-        _categorizedProducts = grouped;
-        _isLoadingCategories = false;
-      });
-    } else {
-      // Get all unique categories (first 5) from Firestore
-      final categorySnapshot = await FirebaseFirestore.instance
-          .collection('products')
-          .limit(100) // adjust if needed
-          .get();
-
-      final categories = <String>{};
-      for (var doc in categorySnapshot.docs) {
-        final data = doc.data();
-        if (data.containsKey('Category')) {
-          categories.add(data['Category']);
-        }
-      }
-
-      final Map<String, List<JumiaProduct>> grouped = {};
-
-      // For each category, fetch first 20 products
-      for (final category in categories) {
-        final productsSnapshot = await FirebaseFirestore.instance
-            .collection('products')
-            .where('Category', isEqualTo: category)
-            .limit(20)
-            .get();
-
-        final products = productsSnapshot.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          return JumiaProduct.fromFirestore(data);
-        }).toList();
-
-        grouped[category] = products;
-      }
-
-      // Flatten all products for caching
-      final allProducts = grouped.values.expand((x) => x).toList();
-      await ProductCacheService().cacheProducts(allProducts);
-
-      if (mounted) {
-        setState(() {
-          _categorizedProducts = grouped;
-          _isLoadingCategories = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _fetchInitialProducts() async {
-    setState(() => _isLoadingMore = true);
-    
-    // Use the updated ProductService
-    final products = await ProductService.fetchProducts(limit: _limit);
-    
-    if (mounted) {
-      setState(() {
-        _products = products;
-        _isLoadingMore = false;
-        _hasMore = products.length == _limit;
-      });
-    }
-  }
-
-  Future<void> _fetchMoreProducts() async {
-    if (_isLoadingMore || !_hasMore) return;
-    setState(() => _isLoadingMore = true);
-    
-    // We need the last document for pagination
-    // First, get the last document reference
-    final lastDocSnapshot = await FirebaseFirestore.instance
-        .collection('products')
-        .orderBy('Title')
-        .where(FieldPath.documentId, isEqualTo: _products.last.id)
-        .limit(1)
-        .get();
-    
-    if (lastDocSnapshot.docs.isEmpty) {
-      setState(() => _isLoadingMore = false);
-      return;
-    }
-    
-    // Use the ProductService with pagination
-    final moreProducts = await ProductService.fetchProducts(
-      startAfter: lastDocSnapshot.docs.first,
-      limit: _limit
-    );
-    
-    if (mounted) {
-      setState(() {
-        _products.addAll(moreProducts);
-        _isLoadingMore = false;
-        _hasMore = moreProducts.length == _limit;
-      });
-    }
-  }
-
-  Future<void> refreshData() async {
-    // Clear product cache
-    await ProductCacheService().clearCache();
-    
-    // Re-initialize
-    await _initializeCache();
-    await _fetchRecommendations();
   }
 
   Future<void> _performSearch(String query) async {
@@ -207,10 +146,8 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       return;
     }
-
-    // Debounce search to avoid frequent Firestore calls
     if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
-    
+
     _searchDebounce = Timer(const Duration(milliseconds: 500), () async {
       setState(() {
         _isLoadingSearch = true;
@@ -224,14 +161,13 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoadingSearch = false;
         });
       } catch (e) {
-        print('Search error: $e');
         setState(() {
           _isLoadingSearch = false;
         });
       }
     });
   }
-  
+
   Timer? _searchDebounce;
 
   @override
@@ -251,10 +187,10 @@ class _HomeScreenState extends State<HomeScreen> {
               else
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
+                  children: [
                     buildCategoryButtons(context),
-                   const SizedBox(height: 10),
-                   buildCarouselSlider(),
+                    const SizedBox(height: 10),
+                    buildCarouselSlider(),
                     buildFirestoreProductsSection(),
                     const SizedBox(height: 10),
                     buildDealsSection(context),
@@ -478,35 +414,42 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children:
-              _categorizedProducts.keys.map((category) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => CategoryScreen(
-                                categoryName: category,
-                                products: _categorizedProducts[category]!,
-                              ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: const BorderSide(color: Colors.black),
+          children: _categories.map((category) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ElevatedButton(
+                onPressed: () async {
+                  // Show loading indicator
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const Center(child: CircularProgressIndicator()),
+                  );
+                  final products = await _fetchProductsForCategory(category);
+                  Navigator.pop(context); // Remove loading indicator
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CategoryScreen(
+                        categoryName: category,
+                        products: products,
                       ),
                     ),
-                    child: Text(category),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Colors.black),
                   ),
-                );
-              }).toList(),
+                ),
+                child: Text(category),
+              ),
+            );
+          }).toList(),
         ),
       ),
     );
@@ -532,7 +475,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildFirestoreProductsSection() {
-    // Only filter local products when not in search mode
     final filteredProducts = _searchQuery.isEmpty
         ? _products
         : _products.where((product) {
@@ -567,12 +509,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: filteredProducts.length,
                       itemBuilder: (context, index) {
                         final product = filteredProducts[index];
-                        final wishlistProvider = Provider.of<WishlistProvider>(
-                          context,
-                        );
-                        final isWishlisted = wishlistProvider.isInWishlist(
-                          product,
-                        );
+                        final wishlistProvider = Provider.of<WishlistProvider>(context);
+                        final isWishlisted = wishlistProvider.isInWishlist(product);
 
                         return GestureDetector(
                           onTap: () {},
@@ -605,7 +543,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(fontSize: 13),
                                     ),
-
                                     Text(
                                       'EGP ${product.priceEGP}',
                                       style: TextStyle(
@@ -616,7 +553,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-
                                     const SizedBox(height: 5),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
@@ -642,16 +578,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 top: 8,
                                 right: 8,
                                 child: GestureDetector(
-                                  onTap:
-                                      () => wishlistProvider.toggleWishlist(
-                                        product,
-                                      ),
+                                  onTap: () => wishlistProvider.toggleWishlist(product),
                                   child: Icon(
-                                    isWishlisted
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color:
-                                        isWishlisted ? Colors.red : Colors.grey,
+                                    isWishlisted ? Icons.favorite : Icons.favorite_border,
+                                    color: isWishlisted ? Colors.red : Colors.grey,
                                   ),
                                 ),
                               ),
@@ -664,10 +594,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (_hasMore && !_isSearching)
                     ElevatedButton(
                       onPressed: _fetchMoreProducts,
-                      child:
-                          _isLoadingMore
-                              ? const CircularProgressIndicator()
-                              : const Text("Load More"),
+                      child: _isLoadingMore
+                          ? const CircularProgressIndicator()
+                          : const Text("Load More"),
                     ),
                 ],
               ),
@@ -887,5 +816,24 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  Future<List<JumiaProduct>> _fetchProductsForCategory(String category) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('products')
+        .where('Category', isEqualTo: category)
+        .orderBy('Title')
+        .limit(_limit)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      if (data != null) {
+        final mapData = data as Map<String, dynamic>;
+        mapData['id'] = doc.id;
+        return JumiaProduct.fromFirestore(mapData);
+      }
+      return null;
+    }).where((product) => product != null).cast<JumiaProduct>().toList();
   }
 }
