@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/chat_page.dart';
@@ -7,8 +9,8 @@ import 'package:ecommerce_app/productdetails.dart';
 import 'package:ecommerce_app/profile.dart';
 import 'package:ecommerce_app/services/search_service.dart';
 import 'package:ecommerce_app/services/recommendation_service.dart';
-import 'package:ecommerce_app/services/product_cache_service.dart';
-import 'package:ecommerce_app/services/product_service.dart';
+//import 'package:ecommerce_app/services/product_cache_service.dart';
+//import 'package:ecommerce_app/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -829,6 +831,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       if (data != null) {
+        // ignore: unnecessary_cast
         final mapData = data as Map<String, dynamic>;
         mapData['id'] = doc.id;
         return JumiaProduct.fromFirestore(mapData);
