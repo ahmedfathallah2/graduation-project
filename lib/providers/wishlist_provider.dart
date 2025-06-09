@@ -26,7 +26,6 @@ class WishlistProvider extends ChangeNotifier {
     if (currentUserId == null) return;
 
     try {
-      // Clear existing wishlist
       _wishlist.clear();
 
       // Get wishlist product IDs from user document
@@ -43,22 +42,33 @@ class WishlistProvider extends ChangeNotifier {
         return;
       }
 
-      // Fetch products from Firestore using the IDs
-      final productsSnapshot = await _firestore
-          .collection('products')
-          .get();
+      // Fetch products in batches of 10 (Firestore limit for whereIn)
+      List<JumiaProduct> fetchedProducts = [];
+      for (var i = 0; i < wishlistIds.length; i += 10) {
+        final batchIds = wishlistIds.sublist(
+          i,
+          i + 10 > wishlistIds.length ? wishlistIds.length : i + 10,
+        );
+        final querySnapshot = await _firestore
+            .collection('products')
+            .where(FieldPath.documentId, whereIn: batchIds)
+            .get();
 
-      // Filter products that match our wishlist IDs
-      final products = productsSnapshot.docs
-          .map((doc) {
-            final data = doc.data();
-            data['id'] = doc.id; // Add document ID to data
-            return JumiaProduct.fromFirestore(data);
-          })
-          .where((product) => wishlistIds.contains(product.id))
-          .toList();
+        fetchedProducts.addAll(querySnapshot.docs.map((doc) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          return JumiaProduct.fromFirestore(data);
+        }));
+      }
 
-      _wishlist.addAll(products);
+      // Keep the order as in wishlistIds
+      _wishlist.addAll(
+        wishlistIds
+            .map((id) => fetchedProducts.firstWhere((p) => p.id == id))
+            .whereType<JumiaProduct>()
+            .toList(),
+      );
+
       notifyListeners();
     } catch (e) {
       print('Error loading wishlist: $e');
