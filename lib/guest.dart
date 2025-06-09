@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/signup.dart';
 import 'package:flutter/material.dart';
-import 'package:ecommerce_app/about.dart'; 
+import 'package:ecommerce_app/about.dart';
+import 'productdetails.dart';
+import 'models/jumia_product.dart';
 
 class DealsScreen extends StatefulWidget {
   const DealsScreen({super.key});
@@ -11,7 +13,7 @@ class DealsScreen extends StatefulWidget {
 }
 
 class _DealsScreenState extends State<DealsScreen> {
-  List<Map<String, dynamic>> _products = [];
+  List<JumiaProduct> _products = [];
   bool _isLoading = true;
 
   @override
@@ -25,13 +27,14 @@ class _DealsScreenState extends State<DealsScreen> {
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('products')
-          .limit(100) // Limit to 100 products as required
+          .limit(100)
           .get();
 
       final products = snapshot.docs.map((doc) {
         final data = doc.data();
-        data['id'] = doc.id;
-        return data;
+        final mapData = Map<String, dynamic>.from(data);
+        mapData['id'] = doc.id;
+        return JumiaProduct.fromFirestore(mapData);
       }).toList();
 
       setState(() {
@@ -95,8 +98,9 @@ class _DealsScreenState extends State<DealsScreen> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
-              MaterialPageRoute(builder: (context)=>SignUpScreen())
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SignUpScreen()),
               );
             },
             child: CircleAvatar(
@@ -152,10 +156,7 @@ class _DealsScreenState extends State<DealsScreen> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(32.0),
-          child: Text(
-            "No products found 😕",
-            style: TextStyle(fontSize: 16),
-          ),
+          child: Text("No products found 😕", style: TextStyle(fontSize: 16)),
         ),
       );
     }
@@ -181,11 +182,15 @@ class _DealsScreenState extends State<DealsScreen> {
     );
   }
 
-  Widget buildDealCard(BuildContext context, Map<String, dynamic> product) {
+  Widget buildDealCard(BuildContext context, JumiaProduct product) {
     return GestureDetector(
       onTap: () {
-        // Replace with your ProductDetails screen and pass product details
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: product)));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailsScreen(product: product),
+          ),
+        );
       },
       child: Stack(
         children: [
@@ -197,35 +202,34 @@ class _DealsScreenState extends State<DealsScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 5,
-                ),
+                BoxShadow(color: Colors.grey.shade300, blurRadius: 5),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Image.network(
-                  product['Image_URL'] ?? '',
+                  product.imageUrl,
                   height: 100,
                   errorBuilder: (context, error, stackTrace) => Container(
                     height: 100,
                     color: Colors.grey[200],
-                    child: const Center(child: Icon(Icons.image_not_supported)),
+                    child: const Center(
+                      child: Icon(Icons.image_not_supported),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  product['Title'] ?? '',
+                  product.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 13),
                 ),
                 Text(
-                  'EGP ${product['Price_EGP'] ?? ""}',
+                  'EGP ${product.priceEGP}',
                   style: const TextStyle(
-                    color:Colors.black,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -234,13 +238,16 @@ class _DealsScreenState extends State<DealsScreen> {
                 ),
                 const SizedBox(height: 5),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: Text(
-                    product['Brand']?.toString() ?? "",
+                    product.brand,
                     style: const TextStyle(color: Colors.black, fontSize: 12),
                   ),
                 ),
