@@ -3,7 +3,7 @@ import 'package:ecommerce_app/guest.dart';
 import 'package:ecommerce_app/homescreen.dart';
 import 'package:ecommerce_app/signup.dart';
 import 'package:ecommerce_app/admin_homescreen.dart';
-import 'package:ecommerce_app/password_reset_screen.dart'; // Import the new reset screen
+//import 'package:ecommerce_app/password_reset_screen.dart'; // Import the new reset screen
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -99,18 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: Text('Email Link'),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PasswordResetScreen(),
-                      ),
-                    );
-                  },
-                  child: Text('Custom Reset'),
-                ),
+                
               ],
             ),
           ],
