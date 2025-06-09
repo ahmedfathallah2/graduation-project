@@ -803,6 +803,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       if (data != null) {
+        // ignore: unnecessary_cast
         final mapData = data as Map<String, dynamic>;
         mapData['id'] = doc.id;
         return JumiaProduct.fromFirestore(mapData);
