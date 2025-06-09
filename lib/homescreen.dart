@@ -4,13 +4,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/chat_page.dart';
 import 'package:ecommerce_app/models/jumia_product.dart';
-import 'package:ecommerce_app/models/product.dart';
 import 'package:ecommerce_app/productdetails.dart';
 import 'package:ecommerce_app/profile.dart';
 import 'package:ecommerce_app/services/search_service.dart';
 import 'package:ecommerce_app/services/recommendation_service.dart';
-//import 'package:ecommerce_app/services/product_cache_service.dart';
-//import 'package:ecommerce_app/services/product_service.dart';
 import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -299,15 +296,17 @@ class _HomeScreenState extends State<HomeScreen> {
             itemCount: _searchResults.length,
             itemBuilder: (context, index) {
               final product = _searchResults[index];
-              final wishlistProvider = Provider.of<WishlistProvider>(
-                context,
-              );
+              final wishlistProvider = Provider.of<WishlistProvider>(context);
               final isWishlisted = wishlistProvider.isInWishlist(product);
 
               return GestureDetector(
                 onTap: () {
-                  // Navigate to product details
-                  // You can create a JumiaProductDetails page similar to ProductPage
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductDetailsScreen(product: product),
+                    ),
+                  );
                 },
                 child: Stack(
                   children: [
@@ -318,9 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.shade300,
-                            blurRadius: 5,
-                          ),
+                              color: Colors.grey.shade300, blurRadius: 5),
                         ],
                       ),
                       child: Column(
@@ -352,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             product.brand,
                             style: TextStyle(
-                              fontSize: 12, 
+                              fontSize: 12,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -391,7 +388,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: GestureDetector(
                         onTap: () => wishlistProvider.toggleWishlist(product),
                         child: Icon(
-                          isWishlisted ? Icons.favorite : Icons.favorite_border,
+                          isWishlisted
+                              ? Icons.favorite
+                              : Icons.favorite_border,
                           color: isWishlisted ? Colors.red : Colors.grey,
                         ),
                       ),
@@ -425,7 +424,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => const Center(child: CircularProgressIndicator()),
+                    builder: (_) =>
+                        const Center(child: CircularProgressIndicator()),
                   );
                   final products = await _fetchProductsForCategory(category);
                   Navigator.pop(context); // Remove loading indicator
@@ -466,13 +466,12 @@ class _HomeScreenState extends State<HomeScreen> {
         enlargeCenterPage: true,
         viewportFraction: 0.9,
       ),
-      items:
-          images.map((imgPath) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(imgPath, fit: BoxFit.cover),
-            );
-          }).toList(),
+      items: images
+          .map((imgPath) => ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(imgPath, fit: BoxFit.cover),
+              ))
+          .toList(),
     );
   }
 
@@ -511,11 +510,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: filteredProducts.length,
                       itemBuilder: (context, index) {
                         final product = filteredProducts[index];
-                        final wishlistProvider = Provider.of<WishlistProvider>(context);
-                        final isWishlisted = wishlistProvider.isInWishlist(product);
+                        final wishlistProvider =
+                            Provider.of<WishlistProvider>(context);
+                        final isWishlisted =
+                            wishlistProvider.isInWishlist(product);
 
                         return GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ProductDetailsScreen(product: product),
+                              ),
+                            );
+                          },
                           child: Stack(
                             children: [
                               Container(
@@ -527,9 +536,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.grey.shade300,
-                                      blurRadius: 5,
-                                    ),
+                                        color: Colors.grey.shade300,
+                                        blurRadius: 5),
                                   ],
                                 ),
                                 child: Column(
@@ -580,10 +588,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 top: 8,
                                 right: 8,
                                 child: GestureDetector(
-                                  onTap: () => wishlistProvider.toggleWishlist(product),
+                                  onTap: () =>
+                                      wishlistProvider.toggleWishlist(product),
                                   child: Icon(
-                                    isWishlisted ? Icons.favorite : Icons.favorite_border,
-                                    color: isWishlisted ? Colors.red : Colors.grey,
+                                    isWishlisted
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color:
+                                        isWishlisted ? Colors.red : Colors.grey,
                                   ),
                                 ),
                               ),
@@ -619,7 +631,6 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          
           if (_isLoadingRecommendations)
             const Center(child: CircularProgressIndicator())
           else if (_recommendedProducts.isEmpty)
@@ -633,9 +644,10 @@ class _HomeScreenState extends State<HomeScreen> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: _recommendedProducts.map((product) => 
-                  buildRecommendedProductCard(context, product)
-                ).toList(),
+                children: _recommendedProducts
+                    .map((product) =>
+                        buildRecommendedProductCard(context, product))
+                    .toList(),
               ),
             ),
         ],
@@ -643,14 +655,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildRecommendedProductCard(BuildContext context, JumiaProduct product) {
+  Widget buildRecommendedProductCard(
+      BuildContext context, JumiaProduct product) {
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     final isWishlisted = wishlistProvider.isInWishlist(product);
-    
+
     return GestureDetector(
       onTap: () {
-        // Navigate to product details when tapped
-        // You'll need to implement JumiaProductDetails page or use ProductPage with conversion
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailsScreen(product: product),
+          ),
+        );
       },
       child: Stack(
         children: [
@@ -661,7 +678,9 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+              boxShadow: [
+                BoxShadow(color: Colors.grey.shade300, blurRadius: 5),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -686,7 +705,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   product.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
                 Text(
                   'EGP ${product.priceEGP}',
@@ -697,7 +719,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 5),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(5),
@@ -722,59 +747,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget buildDealCard(BuildContext context, Product product) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProductPage(product: product, showDimensions: true),
-          ),
-        );
-      },
-      child: Container(
-        width: 150,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
-        ),
-        child: Column(
-          children: [
-            Image.asset(product.imageUrl, height: 90),
-            const SizedBox(height: 5),
-            Text(
-              product.name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              product.price,
-              style: const TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 5),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Text(
-                product.discount,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -831,7 +803,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return snapshot.docs.map((doc) {
       final data = doc.data();
       if (data != null) {
-        // ignore: unnecessary_cast
         final mapData = data as Map<String, dynamic>;
         mapData['id'] = doc.id;
         return JumiaProduct.fromFirestore(mapData);

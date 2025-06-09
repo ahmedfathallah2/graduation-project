@@ -1,171 +1,174 @@
 import 'package:flutter/material.dart';
-import '../models/product.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import '../models/jumia_product.dart';
+import '../providers/wishlist_provider.dart';
 
-class ProductPage extends StatelessWidget {
-  final bool showDimensions;
+class ProductDetailsScreen extends StatelessWidget {
+  final JumiaProduct product;
 
-  const ProductPage({super.key, required this.showDimensions, required this.product});
-  final Product product;
+  const ProductDetailsScreen({Key? key, required this.product}) : super(key: key);
+
+  void _launchURL(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not launch link')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    final isWishlisted = wishlistProvider.isInWishlist(product);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(product.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isWishlisted ? Icons.favorite : Icons.favorite_border,
+              color: isWishlisted ? Colors.red : Colors.grey,
+            ),
+            onPressed: () => wishlistProvider.toggleWishlist(product),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20,),
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  product.imageUrl,
+                  height: 220,
+                  width: double.infinity,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 220,
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Icon(Icons.image_not_supported, size: 80),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              product.title,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
             Row(
               children: [
-                IconButton(icon:  Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context),),
-                const SizedBox(width: 16),
-                Image.asset(product.imageUrl, height: 100),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(product.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Text(product.description,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
+                if (product.brand.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      product.brand,
+                      style: const TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
                   ),
-                )
+                const SizedBox(width: 10),
+                if (product.category.isNotEmpty)
+                  Chip(
+                    label: Text(product.category, style: const TextStyle(fontSize: 13)),
+                    backgroundColor: Colors.blue[50],
+                  ),
               ],
             ),
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.star, color: Colors.orange, size: 18),
-                Text("3.5"),
-                SizedBox(width: 10),
-                Text("1922 Reviews", style: TextStyle(color: Colors.red)),
-                SizedBox(width: 10),
-                Text("936 Sold", style: TextStyle(color: Colors.green)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(product.price, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-      
-            // Dimensions
-             ExpansionTile(
-              title: const Text("DIMENSIONS", style: TextStyle(fontWeight: FontWeight.bold)),
-              initiallyExpanded: false,
-              children: [
-                ListTile(
-                  title: const Text("Product Dimensions"),
-                  trailing: Text("${product.dimensions[0]} ×${product.dimensions[1]}  ×${product.dimensions[2]}  mm"),
-                )
-              ],
-            ),
-      
-            // Vendor section
-             ExpansionTile(
-              title: const Text("vendor", style: TextStyle(fontWeight: FontWeight.bold)),
-              initiallyExpanded: false,
-              children: List.generate(product.vendors.length,(index){
-                return ListTile(title: Text(product.vendors[index]),);
-              })
-                
-                
-              
-            ),
-      
-            // Color section
-            ExpansionTile(
-              title: const Text("color", style: TextStyle(fontWeight: FontWeight.bold)),
-              initiallyExpanded: false,
-              children: List.generate(product.colors.length,(index){
-                return ListTile(title: Text(product.colors[index]),);
-              })
-            ),
-      
-            const SizedBox(height: 16),
-            const Text("You might also like", style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-      
-            // Horizontally scrollable product suggestions
-            SizedBox(
-              height: 160,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: const [
-                  ProductSuggestionCard(
-                    imagePath: "images/iphone_16.png",
-                    price: "EGP47,977",
-                    name: "iPhone 16",
-                    rating: 5,
-                  ),
-                  ProductSuggestionCard(
-                    imagePath: "images/iphone_15.png",
-                    price: "EGP34,999",
-                    name: "iPhone 15",
-                    rating: 4,
-                  ),
-                  ProductSuggestionCard(
-                    imagePath: "images/iphone_13.jpg",
-                    price: "EGP24,999",
-                    name: "iPhone 13",
-                    rating: 5,
-                  ),
-                  ProductSuggestionCard(
-                    imagePath: "images/iphone_11.jpg",
-                    price: "EGP22,499",
-                    name: "iPhone 11",
-                    rating: 4,
-                  ),
+            if (product.subcategory.isNotEmpty)
+              Row(
+                children: [
+                  const Icon(Icons.label_outline, size: 18, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text(product.subcategory, style: const TextStyle(fontSize: 15, color: Colors.black54)),
                 ],
               ),
-            )
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Text(
+                  'EGP ${product.priceEGP}',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                if (product.parsedStorage > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[50],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Storage: ${product.parsedStorage}GB',
+                      style: const TextStyle(fontSize: 13, color: Colors.orange),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.shopping_cart_checkout_outlined),
+                    label: const Text('Buy Now'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      textStyle: const TextStyle(fontSize: 18),
+                    ),
+                    onPressed: () => _launchURL(context, product.link),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: Icon(
+                    isWishlisted ? Icons.favorite : Icons.favorite_border,
+                    color: isWishlisted ? Colors.red : Colors.grey,
+                    size: 30,
+                  ),
+                  onPressed: () => wishlistProvider.toggleWishlist(product),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (product.link.isNotEmpty)
+              InkWell(
+                onTap: () => _launchURL(context, product.link),
+                child: Text(
+                  'View on Jumia',
+                  style: TextStyle(
+                    color: Colors.blue[700],
+                    decoration: TextDecoration.underline,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 40),
           ],
         ),
-      ),
-    );
-  }
-}
-class ProductSuggestionCard extends StatelessWidget {
-  final String imagePath;
-  final String price;
-  final String name;
-  final int rating;
-
-  const ProductSuggestionCard({
-    super.key,
-    required this.imagePath,
-    required this.price,
-    required this.name,
-    required this.rating,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 120,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          Image.asset(imagePath, height: 60),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              rating,
-              (index) => const Icon(Icons.star, color: Colors.orange, size: 14),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(price, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(name),
-        ],
       ),
     );
   }
