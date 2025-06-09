@@ -127,32 +127,7 @@ class ProductDetailsScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.shopping_cart_checkout_outlined),
-                    label: const Text('Buy Now'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      textStyle: const TextStyle(fontSize: 18),
-                    ),
-                    onPressed: () => _launchURL(context, product.link),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                IconButton(
-                  icon: Icon(
-                    isWishlisted ? Icons.favorite : Icons.favorite_border,
-                    color: isWishlisted ? Colors.red : Colors.grey,
-                    size: 30,
-                  ),
-                  onPressed: () => wishlistProvider.toggleWishlist(product),
-                ),
-              ],
-            ),
+            
             const SizedBox(height: 20),
             if (product.link.isNotEmpty)
               InkWell(
