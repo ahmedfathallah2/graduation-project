@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecommerce_app/signup.dart';
 import 'package:flutter/material.dart';
+import 'package:ecommerce_app/about.dart'; 
 
 class DealsScreen extends StatefulWidget {
   const DealsScreen({super.key});
@@ -38,7 +40,6 @@ class _DealsScreenState extends State<DealsScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      // You can show an error message here
       print('Error loading products: $e');
     }
   }
@@ -74,10 +75,30 @@ class _DealsScreenState extends State<DealsScreen> {
               child: const Icon(Icons.arrow_back),
             ),
           ),
-          // You can add AboutUs button or any other buttons here
-          const SizedBox(width: 40),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutUsScreen()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 0,
+              side: const BorderSide(color: Colors.black12),
+            ),
+            child: const Text('About Us'),
+          ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,
+              MaterialPageRoute(builder: (context)=>SignUpScreen())
+              );
+            },
             child: CircleAvatar(
               backgroundColor: Colors.grey[200],
               child: const Icon(Icons.person),
@@ -164,7 +185,7 @@ class _DealsScreenState extends State<DealsScreen> {
     return GestureDetector(
       onTap: () {
         // Replace with your ProductDetails screen and pass product details
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => ProductPage(...)));
+        // Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: product)));
       },
       child: Stack(
         children: [
@@ -204,7 +225,7 @@ class _DealsScreenState extends State<DealsScreen> {
                 Text(
                   'EGP ${product['Price_EGP'] ?? ""}',
                   style: const TextStyle(
-                    color: Colors.red,
+                    color:Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
                   ),
@@ -215,12 +236,12 @@ class _DealsScreenState extends State<DealsScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: Text(
                     product['Brand']?.toString() ?? "",
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    style: const TextStyle(color: Colors.black, fontSize: 12),
                   ),
                 ),
               ],
