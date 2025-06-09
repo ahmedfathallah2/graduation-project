@@ -133,7 +133,7 @@ class ProductDetailsScreen extends StatelessWidget {
               InkWell(
                 onTap: () => _launchURL(context, product.link),
                 child: Text(
-                  'View on Jumia',
+                  '',
                   style: TextStyle(
                     color: Colors.blue[700],
                     decoration: TextDecoration.underline,
