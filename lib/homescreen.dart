@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'categoryscreen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/wishlist_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -51,10 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchCategories() async {
     setState(() => _isLoadingCategories = true);
-    final snapshot = await FirebaseFirestore.instance
-        .collection('products')
-        .limit(100)
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('products')
+            .limit(100)
+            .get();
 
     final categories = <String>{};
     for (var doc in snapshot.docs) {
@@ -86,16 +88,23 @@ class _HomeScreenState extends State<HomeScreen> {
       query = query.startAfterDocument(_lastDocument!);
     }
 
+    print("Fetching Products");
+
     final snapshot = await query.get();
-    final products = snapshot.docs.map((doc) {
-      final data = doc.data();
-      if (data != null) {
-        final mapData = data as Map<String, dynamic>;
-        mapData['id'] = doc.id;
-        return JumiaProduct.fromFirestore(mapData);
-      }
-      return null;
-    }).where((product) => product != null).cast<JumiaProduct>().toList();
+    final products =
+        snapshot.docs
+            .map((doc) {
+              final data = doc.data();
+              if (data != null) {
+                final mapData = data as Map<String, dynamic>;
+                mapData['id'] = doc.id;
+                return JumiaProduct.fromFirestore(mapData);
+              }
+              return null;
+            })
+            .where((product) => product != null)
+            .cast<JumiaProduct>()
+            .toList();
 
     setState(() {
       if (loadMore) {
@@ -127,7 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchRecommendations() async {
     setState(() => _isLoadingRecommendations = true);
     try {
-      final recommendations = await _recommendationService.fetchRecommendations();
+      final recommendations =
+          await _recommendationService.fetchRecommendations();
       setState(() {
         _recommendedProducts = recommendations;
         _isLoadingRecommendations = false;
@@ -228,18 +238,19 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search, color: Colors.grey),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() {
-                      _searchQuery = '';
-                      _isSearching = false;
-                    });
-                  },
-                )
-              : null,
+          suffixIcon:
+              _searchQuery.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        _searchQuery = '';
+                        _isSearching = false;
+                      });
+                    },
+                  )
+                  : null,
           hintText: "Search",
           filled: true,
           fillColor: Colors.grey[200],
@@ -316,26 +327,29 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.shade300, blurRadius: 5),
+                          BoxShadow(color: Colors.grey.shade300, blurRadius: 5),
                         ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Center(
-                            child: Image.network(
-                              product.imageUrl,
+                            child: CachedNetworkImage(
+                              imageUrl: product.imageUrl,
+                              fit: BoxFit.cover,
                               height: 100,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 100,
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: Icon(Icons.image_not_supported),
+                              width: double.infinity,
+                              placeholder:
+                                  (context, url) => Container(
+                                    color: Colors.grey[200],
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
                                   ),
-                                );
-                              },
+                              errorWidget:
+                                  (context, url, error) => Icon(Icons.error),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -388,9 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: GestureDetector(
                         onTap: () => wishlistProvider.toggleWishlist(product),
                         child: Icon(
-                          isWishlisted
-                              ? Icons.favorite
-                              : Icons.favorite_border,
+                          isWishlisted ? Icons.favorite : Icons.favorite_border,
                           color: isWishlisted ? Colors.red : Colors.grey,
                         ),
                       ),
@@ -415,50 +427,56 @@ class _HomeScreenState extends State<HomeScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: _categories.map((category) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ElevatedButton(
-                onPressed: () async {
-                  // Show loading indicator
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) =>
-                        const Center(child: CircularProgressIndicator()),
-                  );
-                  final products = await _fetchProductsForCategory(category);
-                  Navigator.pop(context); // Remove loading indicator
+          children:
+              _categories.map((category) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      // Show loading indicator
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder:
+                            (_) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                      );
+                      final products = await _fetchProductsForCategory(
+                        category,
+                      );
+                      Navigator.pop(context); // Remove loading indicator
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CategoryScreen(
-                        categoryName: category,
-                        products: products,
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => CategoryScreen(
+                                categoryName: category,
+                                products: products,
+                              ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: const BorderSide(color: Colors.black),
                       ),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Colors.black),
+                    child: Text(category),
                   ),
-                ),
-                child: Text(category),
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
         ),
       ),
     );
   }
 
   Widget buildCarouselSlider() {
-    List<String> images = ['images/pic1.jpg', 'images/pic1.jpg'];
+    List<String> images = ['images/offer3.jpg', 'images/offer2.jpg','images/offer1.jpg'];
     return CarouselSlider(
       options: CarouselOptions(
         height: 150,
@@ -466,26 +484,30 @@ class _HomeScreenState extends State<HomeScreen> {
         enlargeCenterPage: true,
         viewportFraction: 0.9,
       ),
-      items: images
-          .map((imgPath) => ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset(imgPath, fit: BoxFit.cover),
-              ))
-          .toList(),
+      items:
+          images
+              .map(
+                (imgPath) => ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(imgPath, fit: BoxFit.cover),
+                ),
+              )
+              .toList(),
     );
   }
 
   Widget buildFirestoreProductsSection() {
-    final filteredProducts = _searchQuery.isEmpty
-        ? _products
-        : _products.where((product) {
-            final title = product.title.toLowerCase();
-            final brand = product.brand.toLowerCase();
-            final category = product.category.toLowerCase();
-            return title.contains(_searchQuery) ||
-                brand.contains(_searchQuery) ||
-                category.contains(_searchQuery);
-          }).toList();
+    final filteredProducts =
+        _searchQuery.isEmpty
+            ? _products
+            : _products.where((product) {
+              final title = product.title.toLowerCase();
+              final brand = product.brand.toLowerCase();
+              final category = product.category.toLowerCase();
+              return title.contains(_searchQuery) ||
+                  brand.contains(_searchQuery) ||
+                  category.contains(_searchQuery);
+            }).toList();
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -510,18 +532,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: filteredProducts.length,
                       itemBuilder: (context, index) {
                         final product = filteredProducts[index];
-                        final wishlistProvider =
-                            Provider.of<WishlistProvider>(context);
-                        final isWishlisted =
-                            wishlistProvider.isInWishlist(product);
+                        final wishlistProvider = Provider.of<WishlistProvider>(
+                          context,
+                        );
+                        final isWishlisted = wishlistProvider.isInWishlist(
+                          product,
+                        );
 
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    ProductDetailsScreen(product: product),
+                                builder:
+                                    (_) =>
+                                        ProductDetailsScreen(product: product),
                               ),
                             );
                           },
@@ -536,15 +561,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                   boxShadow: [
                                     BoxShadow(
-                                        color: Colors.grey.shade300,
-                                        blurRadius: 5),
+                                      color: Colors.grey.shade300,
+                                      blurRadius: 5,
+                                    ),
                                   ],
                                 ),
                                 child: Column(
                                   children: [
-                                    Image.network(
-                                      product.imageUrl,
+                                    CachedNetworkImage(
+                                      imageUrl: product.imageUrl,
+                                      fit: BoxFit.cover,
                                       height: 100,
+                                      width: double.infinity,
+                                      placeholder:
+                                          (context, url) => Container(
+                                            color: Colors.grey[200],
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) =>
+                                              Icon(Icons.error),
                                     ),
                                     const SizedBox(height: 5),
                                     Text(
@@ -588,8 +628,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 top: 8,
                                 right: 8,
                                 child: GestureDetector(
-                                  onTap: () =>
-                                      wishlistProvider.toggleWishlist(product),
+                                  onTap:
+                                      () => wishlistProvider.toggleWishlist(
+                                        product,
+                                      ),
                                   child: Icon(
                                     isWishlisted
                                         ? Icons.favorite
@@ -608,9 +650,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (_hasMore && !_isSearching)
                     ElevatedButton(
                       onPressed: _fetchMoreProducts,
-                      child: _isLoadingMore
-                          ? const CircularProgressIndicator()
-                          : const Text("Load More"),
+                      child:
+                          _isLoadingMore
+                              ? const CircularProgressIndicator()
+                              : const Text("Load More"),
                     ),
                 ],
               ),
@@ -644,10 +687,13 @@ class _HomeScreenState extends State<HomeScreen> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: _recommendedProducts
-                    .map((product) =>
-                        buildRecommendedProductCard(context, product))
-                    .toList(),
+                children:
+                    _recommendedProducts
+                        .map(
+                          (product) =>
+                              buildRecommendedProductCard(context, product),
+                        )
+                        .toList(),
               ),
             ),
         ],
@@ -656,7 +702,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildRecommendedProductCard(
-      BuildContext context, JumiaProduct product) {
+    BuildContext context,
+    JumiaProduct product,
+  ) {
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     final isWishlisted = wishlistProvider.isInWishlist(product);
 
@@ -686,18 +734,19 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Image.network(
-                    product.imageUrl,
-                    height: 90,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 90,
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: Icon(Icons.image_not_supported),
+                  child: CachedNetworkImage(
+                    imageUrl: product.imageUrl,
+                    fit: BoxFit.cover,
+                    height: 100,
+                    width: double.infinity,
+                    placeholder:
+                        (context, url) => Container(
+                          color: Colors.grey[200],
+                          child: Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
-                      );
-                    },
+                    errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -793,22 +842,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<JumiaProduct>> _fetchProductsForCategory(String category) async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('products')
-        .where('Category', isEqualTo: category)
-        .orderBy('Title')
-        .limit(_limit)
-        .get();
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('products')
+            .where('Category', isEqualTo: category)
+            .orderBy('Title')
+            .limit(_limit)
+            .get();
 
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      if (data != null) {
-        // ignore: unnecessary_cast
-        final mapData = data as Map<String, dynamic>;
-        mapData['id'] = doc.id;
-        return JumiaProduct.fromFirestore(mapData);
-      }
-      return null;
-    }).where((product) => product != null).cast<JumiaProduct>().toList();
+    return snapshot.docs
+        .map((doc) {
+          final data = doc.data();
+          if (data != null) {
+            // ignore: unnecessary_cast
+            final mapData = data as Map<String, dynamic>;
+            mapData['id'] = doc.id;
+            return JumiaProduct.fromFirestore(mapData);
+          }
+          return null;
+        })
+        .where((product) => product != null)
+        .cast<JumiaProduct>()
+        .toList();
   }
 }

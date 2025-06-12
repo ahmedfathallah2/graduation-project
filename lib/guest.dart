@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce_app/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce_app/about.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'productdetails.dart';
 import 'models/jumia_product.dart';
 
@@ -115,7 +116,7 @@ class _DealsScreenState extends State<DealsScreen> {
 
   Widget buildBannerCarousel() {
     final images = [
-      'images/pic1.jpg', // Replace with your asset path
+      'images/offer2.jpg', // Replace with your asset path
     ];
 
     return Padding(
@@ -208,17 +209,17 @@ class _DealsScreenState extends State<DealsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(
-                  product.imageUrl,
-                  height: 100,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 100,
-                    color: Colors.grey[200],
-                    child: const Center(
-                      child: Icon(Icons.image_not_supported),
-                    ),
-                  ),
-                ),
+                CachedNetworkImage(
+            imageUrl: product.imageUrl,
+            fit: BoxFit.cover,
+            height: 100,
+            width: double.infinity,
+            placeholder: (context, url) => Container(
+              color: Colors.grey[200],
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            ),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
                 const SizedBox(height: 5),
                 Text(
                   product.title,
