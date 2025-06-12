@@ -102,8 +102,6 @@ class _ChatPageState extends State<ChatPage> {
                               height: 150,
                               child: Column(
                                 children: [
-                                  SizedBox(height: 20),
-
                                   Text(
                                     "Rate your experience",
                                     style: TextStyle(
