@@ -107,20 +107,10 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Based on your wishlist, we recommend:',
+                        'Based on your wishlist:',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 24),
-                      
-                      _buildPreferenceSection(
-                        'Brands',
-                        List<String>.from(autoPreferences!['brands'] ?? []),
-                      ),
-                      
-                      _buildPreferenceSection(
-                        'Categories',
-                        List<String>.from(autoPreferences!['categories'] ?? []),
-                      ),
                       
                       _buildMetricsSection(
                         autoPreferences!['metrics'] as Map<String, dynamic>? ?? {},

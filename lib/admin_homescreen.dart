@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'adminedit.dart';
 import 'admin_dashboard_screen.dart';
 import 'models/jumia_product.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -63,11 +64,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredDocs = _docs.where((doc) {
-      final title = (doc['Title'] ?? '').toString().toLowerCase();
-      final brand = (doc['Brand'] ?? '').toString().toLowerCase();
-      return title.contains(_searchQuery) || brand.contains(_searchQuery);
-    }).toList();
+    final filteredDocs =
+        _docs.where((doc) {
+          final title = (doc['Title'] ?? '').toString().toLowerCase();
+          final brand = (doc['Brand'] ?? '').toString().toLowerCase();
+          return title.contains(_searchQuery) || brand.contains(_searchQuery);
+        }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -124,110 +126,131 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
             // Product cards
             Expanded(
-              child: _docs.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.65,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      itemCount: filteredDocs.length,
-                      itemBuilder: (context, index) {
-                        final data = filteredDocs[index].data() as Map<String, dynamic>;
-                        final id = filteredDocs[index].id;
-                        final product = JumiaProduct.fromFirestore({
-                          ...data,
-                          'id': id,
-                        });
+              child:
+                  _docs.isEmpty
+                      ? const Center(child: CircularProgressIndicator())
+                      : GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.65,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
+                        itemCount: filteredDocs.length,
+                        itemBuilder: (context, index) {
+                          final data =
+                              filteredDocs[index].data()
+                                  as Map<String, dynamic>;
+                          final id = filteredDocs[index].id;
+                          final product = JumiaProduct.fromFirestore({
+                            ...data,
+                            'id': id,
+                          });
 
-                        return Stack(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.shade300,
-                                    blurRadius: 5,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Image.network(
-                                    product.imageUrl,
-                                    height: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    product.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
-                                  Text(
-                                    'EGP ${product.priceEGP}',
-                                    style: const TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
+                          return Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.shade300,
+                                      blurRadius: 5,
+                                      spreadRadius: 1,
                                     ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(5),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CachedNetworkImage(
+                                      imageUrl: product.imageUrl,
+                                      fit: BoxFit.cover,
+                                      height: 100,
+                                      width: double.infinity,
+                                      placeholder:
+                                          (context, url) => Container(
+                                            color: Colors.grey[200],
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) =>
+                                              Icon(Icons.error),
                                     ),
-                                    child: const Text(
-                                      "0%",
-                                      style: TextStyle(color: Colors.white, fontSize: 12),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      product.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 13),
                                     ),
+                                    Text(
+                                      'EGP ${product.priceEGP}',
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Positioned(
+                                top: 6,
+                                right: 6,
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    await FirebaseFirestore.instance
+                                        .collection('products')
+                                        .doc(product.id)
+                                        .delete();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Product deleted'),
+                                      ),
+                                    );
+                                  },
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Positioned(
-                              top: 6,
-                              right: 6,
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await FirebaseFirestore.instance
-                                      .collection('products')
-                                      .doc(product.id)
-                                      .delete();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Product deleted')),
-                                  );
-                                },
-                                child: const Icon(Icons.delete, color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                            ],
+                          );
+                        },
+                      ),
             ),
             if (_hasMore)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: ElevatedButton(
-                  onPressed: _isLoadingMore ? null : () => _fetchProducts(loadMore: true),
-                  child: _isLoadingMore
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Load More'),
+                  onPressed:
+                      _isLoadingMore
+                          ? null
+                          : () => _fetchProducts(loadMore: true),
+                  child:
+                      _isLoadingMore
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Load More'),
                 ),
               ),
           ],

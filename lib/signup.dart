@@ -201,28 +201,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
 
-            const SizedBox(height: 16),
-
-            // Sign in with Google (optional)
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  // TODO: Handle Google Sign In
-                },
-                icon: Image.asset('images/google icon.jpg', height: 20),
-                label: const Text("Sign in with Google",
-                    style: TextStyle(color: Colors.black)),
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.grey[100],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-              ),
-            ),
-
             const Spacer(),
 
             // Bottom Text

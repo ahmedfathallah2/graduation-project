@@ -255,18 +255,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       children: [
                         ProfileMenuItem(
-                          icon: Icons.person_outline,
-                          title: 'Profile',
-                          onTap: _navigateToEditProfile,
-                        ),
-                        ProfileMenuItem(
                           icon: Icons.favorite_border,
                           title: 'Wishlist',
                           onTap: _navigateToWishlist,
                         ),
-                        const ProfileMenuItem(
+                        ProfileMenuItem(
                           icon: Icons.settings_outlined,
                           title: 'Settings',
+                          onTap: _navigateToEditProfile,
                         ),
 
                         // Logout Button
