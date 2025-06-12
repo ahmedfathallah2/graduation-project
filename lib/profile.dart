@@ -265,10 +265,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: _navigateToWishlist,
                         ),
                         const ProfileMenuItem(
-                          icon: Icons.search,
-                          title: 'Recently Searched',
-                        ),
-                        const ProfileMenuItem(
                           icon: Icons.settings_outlined,
                           title: 'Settings',
                         ),

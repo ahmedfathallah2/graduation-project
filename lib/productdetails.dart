@@ -107,7 +107,7 @@ class ProductDetailsScreen extends StatelessWidget {
                   'EGP ${product.priceEGP}',
                   style: const TextStyle(
                     fontSize: 20,
-                    color: Colors.red,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -116,12 +116,12 @@ class ProductDetailsScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Colors.orange[50],
+                      color: Colors.blue[50],
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       'Storage: ${product.parsedStorage}GB',
-                      style: const TextStyle(fontSize: 13, color: Colors.orange),
+                      style: const TextStyle(fontSize: 13, color: Colors.blue),
                     ),
                   ),
               ],

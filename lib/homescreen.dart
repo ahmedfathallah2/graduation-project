@@ -596,7 +596,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Text(
                                       'EGP ${product.priceEGP}',
                                       style: TextStyle(
-                                        color: Colors.red,
+                                        color: Colors.black,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
                                       ),
@@ -604,23 +604,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 5),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: const Text(
-                                        "0%",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
+                                    
                                   ],
                                 ),
                               ),
@@ -762,7 +746,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'EGP ${product.priceEGP}',
                   style: const TextStyle(
-                    color: Colors.red,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
