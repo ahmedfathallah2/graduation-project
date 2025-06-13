@@ -41,93 +41,72 @@ class _AdminProductScreenState extends State<AdminProductScreen> {
     }
   }
 
-  Future<void> _deleteProduct(String productId) async {
-    await FirebaseFirestore.instance.collection('products').doc(productId).delete();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Product deleted')),
-    );
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(title: const Text('Admin Product Manager')),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(labelText: 'Title'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
-                child: IntrinsicHeight(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // FORM
-                        Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              TextFormField(
-                                controller: _titleController,
-                                decoration: const InputDecoration(labelText: 'Title'),
-                                validator: (v) => v!.isEmpty ? 'Required' : null,
-                              ),
-                              TextFormField(
-                                controller: _brandController,
-                                decoration: const InputDecoration(labelText: 'Brand'),
-                                validator: (v) => v!.isEmpty ? 'Required' : null,
-                              ),
-                              TextFormField(
-                                controller: _categoryController,
-                                decoration: const InputDecoration(labelText: 'Category'),
-                                validator: (v) => v!.isEmpty ? 'Required' : null,
-                              ),
-                              TextFormField(
-                                controller: _subcategoryController,
-                                decoration: const InputDecoration(labelText: 'Subcategory'),
-                                validator: (v) => v!.isEmpty ? 'Required' : null,
-                              ),
-                              TextFormField(
-                                controller: _imageUrlController,
-                                decoration: const InputDecoration(labelText: 'Image URL'),
-                                validator: (v) => v!.isEmpty ? 'Required' : null,
-                              ),
-                              TextFormField(
-                                controller: _linkController,
-                                decoration: const InputDecoration(labelText: 'Link'),
-                                validator: (v) => v!.isEmpty ? 'Required' : null,
-                              ),
-                              TextFormField(
-                                controller: _parsedStorageController,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(labelText: 'Parsed Storage'),
-                              ),
-                              TextFormField(
-                                controller: _priceEGPController,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(labelText: 'Price (EGP)'),
-                              ),
-                              const SizedBox(height: 10),
-                              ElevatedButton(
-                                onPressed: _addProduct,
-                                child: const Text('Add Product'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                TextFormField(
+                  controller: _brandController,
+                  decoration: const InputDecoration(labelText: 'Brand'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
-              ),
-            );
-          },
+                TextFormField(
+                  controller: _categoryController,
+                  decoration: const InputDecoration(labelText: 'Category'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: _subcategoryController,
+                  decoration: const InputDecoration(labelText: 'Subcategory'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: _imageUrlController,
+                  decoration: const InputDecoration(labelText: 'Image URL'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: _linkController,
+                  decoration: const InputDecoration(labelText: 'Link'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                TextFormField(
+                  controller: _parsedStorageController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Parsed Storage'),
+                ),
+                TextFormField(
+                  controller: _priceEGPController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Price (EGP)'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _addProduct,
+                  child: const Text('Add Product'),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
